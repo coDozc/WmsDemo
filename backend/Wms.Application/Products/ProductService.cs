@@ -59,7 +59,7 @@ public class ProductService(IProductRepository productRepository)
 
         var sku = request.Sku.Trim().ToUpperInvariant();
 
-        if (await productRepository.SkuExistsAsync(sku, id))
+        if (await productRepository.SkuExistsAsync(sku))
         {
             throw new InvalidOperationException(
                 "Bu SKU ile kayıtlı bir ürün bulunuyor.");

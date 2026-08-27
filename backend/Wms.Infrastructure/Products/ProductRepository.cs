@@ -8,7 +8,7 @@ namespace Wms.Infrastructure.Products;
 public class ProductRepository(WmsDbContext dbContext)
     : IProductRepository
 {
-    public async Task<IReadOnlyList<Product>> GetAllAsync()
+    public async Task<List<Product>> GetAllAsync()
     {
         return await dbContext.Products
             .AsNoTracking()
@@ -22,12 +22,10 @@ public class ProductRepository(WmsDbContext dbContext)
     }
 
     public async Task<bool> SkuExistsAsync(
-        string sku,
-        int? excludedProductId = null)
+        string sku)
     {
         return await dbContext.Products.AnyAsync(product =>
-            product.Sku == sku &&
-            (!excludedProductId.HasValue || product.Id != excludedProductId));
+            product.Sku == sku);
     }
 
     public async Task AddAsync(Product product)
