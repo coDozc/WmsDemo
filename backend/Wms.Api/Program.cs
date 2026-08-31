@@ -1,14 +1,12 @@
 using Microsoft.EntityFrameworkCore;
-using Wms.Infrastructure.Persistence;
-using Wms.Application.Products;
-using Wms.Infrastructure.Products;
+using Wms.Api.Data;
+using Wms.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductService, ProductService>();
 
 builder.Services.AddDbContext<WmsDbContext>(options =>

@@ -1,7 +1,6 @@
-using Wms.Application.Products.Requests;
-using Wms.Application.Products.Response;
+using Wms.Api.Contracts.Products;
 
-namespace Wms.Application.Products;
+namespace Wms.Api.Services;
 
 public interface IProductService
 {

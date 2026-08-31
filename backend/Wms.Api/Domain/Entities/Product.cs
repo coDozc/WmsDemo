@@ -1,4 +1,4 @@
-﻿namespace Wms.Domain.Entities;
+namespace Wms.Api.Domain.Entities;
 
 public class Product
 {

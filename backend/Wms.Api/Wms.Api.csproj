@@ -11,12 +11,8 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="10.0.11" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Wms.Application\Wms.Application.csproj" />
-    <ProjectReference Include="..\Wms.Infrastructure\Wms.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

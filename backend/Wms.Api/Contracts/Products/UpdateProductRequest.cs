@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace Wms.Application.Products.Requests;
+namespace Wms.Api.Contracts.Products;
 
 public class UpdateProductRequest
 {

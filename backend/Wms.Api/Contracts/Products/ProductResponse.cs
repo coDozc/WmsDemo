@@ -1,6 +1,4 @@
-using Wms.Domain.Entities;
-
-namespace Wms.Application.Products.Response;
+namespace Wms.Api.Contracts.Products;
 
 public class ProductResponse
 {

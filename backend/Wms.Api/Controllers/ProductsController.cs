@@ -1,7 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
-using Wms.Application.Products;
-using Wms.Application.Products.Requests;
-using Wms.Application.Products.Response;
+using Wms.Api.Contracts.Products;
+using Wms.Api.Services;
 
 namespace Wms.Api.Controllers;
 

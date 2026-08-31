@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
-using Wms.Domain.Entities;
+using Wms.Api.Domain.Entities;
 
-namespace Wms.Infrastructure.Persistence;
+namespace Wms.Api.Data;
 
 public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     : DbContext(options)
@@ -14,21 +14,25 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
 
         modelBuilder.Entity<Product>(entity =>
         {
-            entity.HasKey(x => x.Id);
+            entity.HasKey(product => product.Id);
 
-            entity.Property(x => x.Sku)
+            entity.Property(product => product.Sku)
                 .HasMaxLength(50)
                 .IsRequired();
 
-            entity.Property(x => x.Name)
+            entity.Property(product => product.Name)
                 .HasMaxLength(200)
                 .IsRequired();
 
-            entity.Property(x => x.Barcode)
+            entity.Property(product => product.Barcode)
                 .HasMaxLength(100);
 
-            entity.HasIndex(x => x.Sku)
+            entity.HasIndex(product => product.Sku)
                 .IsUnique();
+
+            entity.HasIndex(product => product.Barcode)
+                .IsUnique()
+                .HasFilter("[Barcode] IS NOT NULL");
         });
     }
 }
