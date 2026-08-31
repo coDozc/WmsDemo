@@ -30,6 +30,7 @@ public class ProductService(WmsDbContext dbContext) : IProductService
             Sku = sku,
             Name = request.Name.Trim(),
             Barcode = barcode,
+            MinimumStock = request.MinimumStock,
             IsActive = true
         };
 
@@ -88,6 +89,7 @@ public class ProductService(WmsDbContext dbContext) : IProductService
         product.Sku = sku;
         product.Name = request.Name.Trim();
         product.Barcode = barcode;
+        product.MinimumStock = request.MinimumStock;
         product.IsActive = request.IsActive;
 
         await dbContext.SaveChangesAsync();
@@ -118,6 +120,7 @@ public class ProductService(WmsDbContext dbContext) : IProductService
             Sku = product.Sku,
             Name = product.Name,
             Barcode = product.Barcode,
+            MinimumStock = product.MinimumStock,
             IsActive = product.IsActive,
             CreatedAtUtc = product.CreatedAtUtc
         };

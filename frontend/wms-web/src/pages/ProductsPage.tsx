@@ -23,6 +23,7 @@ type ProductFormState = {
   sku: string
   name: string
   barcode: string
+  minimumStock: number
   isActive: boolean
 }
 
@@ -30,6 +31,7 @@ const emptyForm: ProductFormState = {
   sku: '',
   name: '',
   barcode: '',
+  minimumStock: 0,
   isActive: true,
 }
 
@@ -98,6 +100,7 @@ function ProductsPage() {
       sku: product.sku,
       name: product.name,
       barcode: product.barcode ?? '',
+      minimumStock: product.minimumStock,
       isActive: product.isActive,
     })
     setFormError(null)
@@ -115,6 +118,7 @@ function ProductsPage() {
           sku: form.sku,
           name: form.name,
           barcode: form.barcode || null,
+          minimumStock: form.minimumStock,
           isActive: form.isActive,
         })
       } else {
@@ -122,6 +126,7 @@ function ProductsPage() {
           sku: form.sku,
           name: form.name,
           barcode: form.barcode || null,
+          minimumStock: form.minimumStock,
         })
       }
 
@@ -221,6 +226,7 @@ function ProductsPage() {
                 <th>SKU</th>
                 <th>Ürün</th>
                 <th>Barkod</th>
+                <th>Minimum stok</th>
                 <th>Durum</th>
                 <th>Oluşturma</th>
                 <th className="text-end">İşlemler</th>
@@ -233,6 +239,7 @@ function ProductsPage() {
                     <td><span className="sku-text">{product.sku}</span></td>
                     <td className="product-name">{product.name}</td>
                     <td>{product.barcode || <span className="muted-value">Yok</span>}</td>
+                    <td>{product.minimumStock}</td>
                     <td>
                       <span className={`status-badge ${product.isActive ? 'active' : 'inactive'}`}>
                         {product.isActive ? 'Aktif' : 'Pasif'}
@@ -342,6 +349,23 @@ function ProductsPage() {
                     maxLength={100}
                     value={form.barcode}
                     onChange={(event) => setForm({ ...form, barcode: event.target.value })}
+                  />
+                </div>
+
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="product-minimum-stock">Minimum stok</label>
+                  <input
+                    id="product-minimum-stock"
+                    className="form-control"
+                    type="number"
+                    min={0}
+                    step={1}
+                    required
+                    value={form.minimumStock}
+                    onChange={(event) => setForm({
+                      ...form,
+                      minimumStock: Number(event.target.value),
+                    })}
                   />
                 </div>
 

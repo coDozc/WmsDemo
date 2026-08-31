@@ -14,4 +14,7 @@ public class CreateProductRequest
 
     [MaxLength(100)]
     public string? Barcode { get; set; }
+
+    [Range(0, int.MaxValue)]
+    public int MinimumStock { get; set; }
 }
