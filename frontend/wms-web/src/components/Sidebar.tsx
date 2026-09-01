@@ -22,10 +22,8 @@ type NavItem = {
   icon: typeof Package
 }
 
-const managementItems: NavItem[] = [
+const disabledManagementItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Depolar', icon: Warehouse },
-  { label: 'Lokasyonlar', icon: MapPin },
   { label: 'Stoklar', icon: Boxes },
 ]
 
@@ -69,7 +67,7 @@ function Sidebar({ open, onClose }: SidebarProps) {
 
       <nav className="sidebar-nav" aria-label="Ana menü">
         <div className="nav-section-label">Yönetim</div>
-        <DisabledNavItems items={managementItems.slice(0, 1)} />
+        <DisabledNavItems items={disabledManagementItems.slice(0, 1)} />
         <NavLink
           to="/products"
           className={({ isActive }) =>
@@ -80,7 +78,27 @@ function Sidebar({ open, onClose }: SidebarProps) {
           <Package size={18} />
           <span>Ürünler</span>
         </NavLink>
-        <DisabledNavItems items={managementItems.slice(1)} />
+        <NavLink
+          to="/warehouses"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Warehouse size={18} />
+          <span>Depolar</span>
+        </NavLink>
+        <NavLink
+          to="/locations"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <MapPin size={18} />
+          <span>Lokasyonlar</span>
+        </NavLink>
+        <DisabledNavItems items={disabledManagementItems.slice(1)} />
 
         <div className="nav-section-label nav-section-spaced">Operasyonlar</div>
         <DisabledNavItems items={operationItems} />

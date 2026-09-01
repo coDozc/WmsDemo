@@ -65,7 +65,11 @@ function ProductsPage() {
   }
 
   useEffect(() => {
-    void loadProducts()
+    async function loadInitialProducts() {
+      await loadProducts()
+    }
+
+    void loadInitialProducts()
   }, [])
 
   const visibleProducts = useMemo(() => {

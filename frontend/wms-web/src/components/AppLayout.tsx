@@ -1,10 +1,16 @@
 import { Menu, UserRound } from 'lucide-react'
 import { useState } from 'react'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Sidebar from './Sidebar'
 
 function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const location = useLocation()
+  const pageTitle = location.pathname.startsWith('/warehouses')
+    ? 'Depolar'
+    : location.pathname.startsWith('/locations')
+      ? 'Lokasyonlar'
+      : 'Ürünler'
 
   return (
     <div className="app-shell">
@@ -33,7 +39,7 @@ function AppLayout() {
 
           <div>
             <div className="topbar-eyebrow">Operasyon yönetimi</div>
-            <h1>Ürünler</h1>
+            <h1>{pageTitle}</h1>
           </div>
 
           <div className="user-summary" title="Oturum bilgisi">

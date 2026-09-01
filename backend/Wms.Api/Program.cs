@@ -1,13 +1,19 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using Wms.Api.Data;
 using Wms.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+        options.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter(allowIntegerValues: false)));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IWarehouseService, WarehouseService>();
+builder.Services.AddScoped<ILocationService, LocationService>();
 
 builder.Services.AddDbContext<WmsDbContext>(options =>
     options.UseSqlServer(
