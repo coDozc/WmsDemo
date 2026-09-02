@@ -111,6 +111,11 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
             }
         }
 
+        if (!request.IsActive && location.IsActive)
+        {
+            await EnsureLocationHasNoStockAsync(id);
+        }
+
         location.Code = code;
         location.Name = request.Name.Trim();
         location.Type = request.Type!.Value;
@@ -129,6 +134,13 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
         {
             return false;
         }
+
+        if (!location.IsActive)
+        {
+            return true;
+        }
+
+        await EnsureLocationHasNoStockAsync(id);
 
         location.IsActive = false;
         await dbContext.SaveChangesAsync();
@@ -166,5 +178,17 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
     private static string NormalizeCode(string code)
     {
         return code.Trim().ToUpperInvariant();
+    }
+
+    private async Task EnsureLocationHasNoStockAsync(int locationId)
+    {
+        var hasStock = await dbContext.InventoryBalances.AnyAsync(balance =>
+            balance.LocationId == locationId && balance.Quantity > 0);
+
+        if (hasStock)
+        {
+            throw new InvalidOperationException(
+                "Stok bakiyesi bulunan lokasyon pasife alınamaz.");
+        }
     }
 }

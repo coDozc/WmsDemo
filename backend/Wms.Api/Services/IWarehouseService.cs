@@ -10,3 +10,4 @@ public interface IWarehouseService
     Task<bool> UpdateAsync(int id, UpdateWarehouseRequest request);
     Task<bool> DeactivateAsync(int id);
 }
+    

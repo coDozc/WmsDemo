@@ -74,8 +74,15 @@ public class LocationsController(ILocationService locationService)
     [HttpDelete("locations/{id:int}")]
     public async Task<IActionResult> Deactivate(int id)
     {
-        var deactivated = await locationService.DeactivateAsync(id);
+        try
+        {
+            var deactivated = await locationService.DeactivateAsync(id);
 
-        return deactivated ? NoContent() : NotFound();
+            return deactivated ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
     }
 }

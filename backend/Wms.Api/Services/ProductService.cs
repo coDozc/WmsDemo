@@ -86,6 +86,11 @@ public class ProductService(WmsDbContext dbContext) : IProductService
                 "Bu barkod başka bir üründe kullanılıyor.");
         }
 
+        if (!request.IsActive && product.IsActive)
+        {
+            await EnsureProductHasNoStockAsync(id);
+        }
+
         product.Sku = sku;
         product.Name = request.Name.Trim();
         product.Barcode = barcode;
@@ -105,6 +110,13 @@ public class ProductService(WmsDbContext dbContext) : IProductService
         {
             return false;
         }
+
+        if (!product.IsActive)
+        {
+            return true;
+        }
+
+        await EnsureProductHasNoStockAsync(id);
 
         product.IsActive = false;
         await dbContext.SaveChangesAsync();
@@ -129,5 +141,17 @@ public class ProductService(WmsDbContext dbContext) : IProductService
     private static string? NormalizeBarcode(string? barcode)
     {
         return string.IsNullOrWhiteSpace(barcode) ? null : barcode.Trim();
+    }
+
+    private async Task EnsureProductHasNoStockAsync(int productId)
+    {
+        var hasStock = await dbContext.InventoryBalances.AnyAsync(balance =>
+            balance.ProductId == productId && balance.Quantity > 0);
+
+        if (hasStock)
+        {
+            throw new InvalidOperationException(
+                "Stok bakiyesi bulunan ürün pasife alınamaz.");
+        }
     }
 }
