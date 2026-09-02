@@ -11,6 +11,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<InventoryBalance> InventoryBalances => Set<InventoryBalance>();
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
+    public DbSet<Order> Orders => Set<Order>();
+    public DbSet<OrderLine> OrderLines => Set<OrderLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -139,6 +141,51 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
             entity.HasOne(movement => movement.ToLocation)
                 .WithMany()
                 .HasForeignKey(movement => movement.ToLocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Order>(entity =>
+        {
+            entity.HasKey(order => order.Id);
+
+            entity.Property(order => order.OrderNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(order => order.CustomerName)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(order => order.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.HasIndex(order => order.OrderNumber)
+                .IsUnique();
+
+            entity.HasOne(order => order.Warehouse)
+                .WithMany()
+                .HasForeignKey(order => order.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(order => order.Lines)
+                .WithOne(line => line.Order)
+                .HasForeignKey(line => line.OrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<OrderLine>(entity =>
+        {
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_OrderLines_Quantity",
+                "[Quantity] > 0"));
+
+            entity.HasKey(line => line.Id);
+
+            entity.HasOne(line => line.Product)
+                .WithMany()
+                .HasForeignKey(line => line.ProductId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

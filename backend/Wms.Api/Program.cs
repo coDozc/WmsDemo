@@ -16,6 +16,7 @@ builder.Services.AddScoped<IWarehouseService, WarehouseService>();
 builder.Services.AddScoped<ILocationService, LocationService>();
 builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
 
 builder.Services.AddDbContext<WmsDbContext>(options =>
     options.UseSqlServer(
