@@ -24,14 +24,12 @@ type NavItem = {
 
 const disabledManagementItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard },
-  { label: 'Stoklar', icon: Boxes },
 ]
 
 const operationItems: NavItem[] = [
   { label: 'Mal Kabul', icon: Truck },
   { label: 'Transferler', icon: Building2 },
   { label: 'Sevkiyatlar', icon: Send },
-  { label: 'Stok Hareketleri', icon: ClipboardList },
 ]
 
 function DisabledNavItems({ items }: { items: NavItem[] }) {
@@ -98,10 +96,29 @@ function Sidebar({ open, onClose }: SidebarProps) {
           <MapPin size={18} />
           <span>Lokasyonlar</span>
         </NavLink>
-        <DisabledNavItems items={disabledManagementItems.slice(1)} />
+        <NavLink
+          to="/inventory"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Boxes size={18} />
+          <span>Stoklar</span>
+        </NavLink>
 
         <div className="nav-section-label nav-section-spaced">Operasyonlar</div>
         <DisabledNavItems items={operationItems} />
+        <NavLink
+          to="/stock-movements"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <ClipboardList size={18} />
+          <span>Stok Hareketleri</span>
+        </NavLink>
       </nav>
 
       <div className="sidebar-footer">

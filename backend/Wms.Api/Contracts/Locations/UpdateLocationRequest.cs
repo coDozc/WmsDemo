@@ -9,9 +9,8 @@ public class UpdateLocationRequest
     [MaxLength(50)]
     public string Code { get; set; } = string.Empty;
 
-    [Required]
     [MaxLength(200)]
-    public string Name { get; set; } = string.Empty;
+    public string? Name { get; set; }
 
     [Required]
     [EnumDataType(typeof(LocationType))]

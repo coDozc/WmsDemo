@@ -117,7 +117,7 @@ function LocationsPage() {
     return locations.filter((location) => {
       const matchesSearch =
         !normalizedQuery ||
-        location.name.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
+        location.name?.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
         location.code.toLocaleLowerCase('tr-TR').includes(normalizedQuery)
 
       const matchesStatus =
@@ -146,7 +146,7 @@ function LocationsPage() {
     setEditingLocation(location)
     setForm({
       code: location.code,
-      name: location.name,
+      name: location.name ?? '',
       type: location.type,
       isActive: location.isActive,
     })
@@ -183,7 +183,7 @@ function LocationsPage() {
   }
 
   async function handleDeactivate(location: Location) {
-    if (!window.confirm(`${location.name} lokasyonu pasife alınsın mı?`)) return
+    if (!window.confirm(`${location.name ?? location.code} lokasyonu pasife alınsın mı?`)) return
 
     try {
       await deactivateLocation(location.id)
@@ -293,7 +293,7 @@ function LocationsPage() {
               {!loading && visibleLocations.map((location) => (
                 <tr key={location.id}>
                   <td><span className="sku-text">{location.code}</span></td>
-                  <td className="product-name">{location.name}</td>
+                  <td className="product-name">{location.name ?? <span className="muted-value">Yok</span>}</td>
                   <td><span className={`type-badge ${location.type.toLowerCase()}`}>{typeLabels[location.type]}</span></td>
                   <td>
                     <span className={`status-badge ${location.isActive ? 'active' : 'inactive'}`}>
@@ -303,10 +303,10 @@ function LocationsPage() {
                   <td>{new Date(location.createdAtUtc).toLocaleDateString('tr-TR')}</td>
                   <td>
                     <div className="row-actions">
-                      <button type="button" className="icon-button" title="Lokasyonu düzenle" aria-label={`${location.name} lokasyonunu düzenle`} onClick={() => openEditForm(location)}>
+                      <button type="button" className="icon-button" title="Lokasyonu düzenle" aria-label={`${location.name ?? location.code} lokasyonunu düzenle`} onClick={() => openEditForm(location)}>
                         <Pencil size={17} />
                       </button>
-                      <button type="button" className="icon-button danger" title="Lokasyonu pasife al" aria-label={`${location.name} lokasyonunu pasife al`} onClick={() => void handleDeactivate(location)} disabled={!location.isActive}>
+                      <button type="button" className="icon-button danger" title="Lokasyonu pasife al" aria-label={`${location.name ?? location.code} lokasyonunu pasife al`} onClick={() => void handleDeactivate(location)} disabled={!location.isActive}>
                         <Power size={17} />
                       </button>
                     </div>
@@ -356,8 +356,8 @@ function LocationsPage() {
                 </div>
 
                 <div className="mb-3">
-                  <label className="form-label" htmlFor="location-name">Lokasyon adı</label>
-                  <input id="location-name" className="form-control" maxLength={200} required value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+                  <label className="form-label" htmlFor="location-name">Lokasyon adı <span className="muted-value">(opsiyonel)</span></label>
+                  <input id="location-name" className="form-control" maxLength={200} value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
                 </div>
 
                 <div className="mb-3">

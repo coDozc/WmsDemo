@@ -215,6 +215,14 @@
   grid-template-columns: minmax(220px, 0.7fr) minmax(260px, 1fr) 160px 40px auto;
 }
 
+.inventory-toolbar {
+  grid-template-columns: minmax(260px, 1fr) minmax(190px, 0.65fr) 150px 40px auto;
+}
+
+.movements-toolbar {
+  grid-template-columns: minmax(260px, 1fr) 190px 40px;
+}
+
 .search-control {
   position: relative;
 }
@@ -240,6 +248,10 @@
   border-color: #ccd3cd;
   border-radius: 5px;
   font-size: 0.86rem;
+}
+
+textarea.form-control {
+  resize: vertical;
 }
 
 .form-control:focus,
@@ -415,6 +427,22 @@
   background: var(--warning-soft);
 }
 
+.status-badge.critical {
+  color: #a33434;
+  background: #fff0f0;
+}
+
+.cell-subtext {
+  display: block;
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.quantity-low {
+  color: #b02f2f;
+}
+
 .type-badge {
   display: inline-flex;
   min-height: 24px;
@@ -438,6 +466,65 @@
   color: #795a13;
   background: #fff4d9;
   border-color: #ead8a8;
+}
+
+.movement-badge {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 3px 8px;
+  color: #4e5650;
+  background: #edf0ed;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.movement-badge.receipt {
+  color: #217a55;
+  background: var(--accent-soft);
+}
+
+.movement-badge.shipment {
+  color: #a33434;
+  background: #fff0f0;
+}
+
+.movement-badge.transfer {
+  color: #185f78;
+  background: #e5f3f7;
+}
+
+.movement-path {
+  display: grid;
+  grid-template-columns: 18px minmax(90px, 1fr) 16px minmax(90px, 1fr);
+  align-items: center;
+  gap: 5px;
+  min-width: 300px;
+  color: #4e5650;
+  font-size: 0.75rem;
+}
+
+.movement-in {
+  color: var(--accent);
+}
+
+.movement-out {
+  color: #a33434;
+}
+
+.movement-note {
+  min-width: 180px;
+  max-width: 340px;
+  white-space: normal;
+}
+
+.inventory-table {
+  min-width: 1050px;
+}
+
+.movements-table {
+  min-width: 1060px;
 }
 
 .row-actions {
@@ -592,9 +679,34 @@
     grid-template-columns: minmax(200px, 0.8fr) minmax(240px, 1fr) 150px 40px;
   }
 
+  .inventory-toolbar {
+    grid-template-columns: minmax(240px, 1fr) minmax(180px, 0.7fr) 150px 40px;
+  }
+
+  .inventory-toolbar .add-button {
+    grid-column: 1 / -1;
+    justify-self: end;
+  }
+
   .locations-toolbar .add-button {
     grid-column: 1 / -1;
     justify-self: end;
+  }
+
+  .inventory-toolbar,
+  .movements-toolbar {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  .inventory-toolbar .search-control,
+  .inventory-toolbar .form-select:first-of-type,
+  .movements-toolbar .search-control {
+    grid-column: 1 / -1;
+  }
+
+  .inventory-toolbar .add-button {
+    grid-column: 1 / -1;
+    width: 100%;
   }
 }
 

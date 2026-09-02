@@ -12,7 +12,7 @@ public class InventoryBalanceResponse
     public string WarehouseName { get; set; } = string.Empty;
     public int LocationId { get; set; }
     public string LocationCode { get; set; } = string.Empty;
-    public string LocationName { get; set; } = string.Empty;
+    public string? LocationName { get; set; }
     public LocationType LocationType { get; set; }
     public int Quantity { get; set; }
     public int MinimumStock { get; set; }

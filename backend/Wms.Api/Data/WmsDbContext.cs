@@ -68,8 +68,7 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
                 .IsRequired();
 
             entity.Property(location => location.Name)
-                .HasMaxLength(200)
-                .IsRequired();
+                .HasMaxLength(200);
 
             entity.Property(location => location.Type)
                 .HasConversion<string>()

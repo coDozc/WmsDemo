@@ -67,7 +67,7 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
         {
             WarehouseId = warehouseId,
             Code = code,
-            Name = request.Name.Trim(),
+            Name = NormalizeName(request.Name),
             Type = request.Type!.Value,
             IsActive = true
         };
@@ -117,7 +117,7 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
         }
 
         location.Code = code;
-        location.Name = request.Name.Trim();
+        location.Name = NormalizeName(request.Name);
         location.Type = request.Type!.Value;
         location.IsActive = request.IsActive;
 
@@ -178,6 +178,11 @@ public class LocationService(WmsDbContext dbContext) : ILocationService
     private static string NormalizeCode(string code)
     {
         return code.Trim().ToUpperInvariant();
+    }
+
+    private static string? NormalizeName(string? name)
+    {
+        return string.IsNullOrWhiteSpace(name) ? null : name.Trim();
     }
 
     private async Task EnsureLocationHasNoStockAsync(int locationId)

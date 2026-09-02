@@ -5,7 +5,7 @@ export type Location = {
   warehouseId: number
   warehouseName: string
   code: string
-  name: string
+  name: string | null
   type: LocationType
   isActive: boolean
   createdAtUtc: string
@@ -13,7 +13,7 @@ export type Location = {
 
 export type CreateLocationRequest = {
   code: string
-  name: string
+  name: string | null
   type: LocationType
 }
 

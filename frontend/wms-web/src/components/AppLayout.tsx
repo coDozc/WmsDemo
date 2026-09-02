@@ -10,7 +10,11 @@ function AppLayout() {
     ? 'Depolar'
     : location.pathname.startsWith('/locations')
       ? 'Lokasyonlar'
-      : 'Ürünler'
+      : location.pathname.startsWith('/stock-movements')
+        ? 'Stok Hareketleri'
+        : location.pathname.startsWith('/inventory')
+          ? 'Stoklar'
+          : 'Ürünler'
 
   return (
     <div className="app-shell">
