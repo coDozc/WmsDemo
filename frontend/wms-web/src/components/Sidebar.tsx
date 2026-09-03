@@ -28,7 +28,6 @@ const disabledManagementItems: NavItem[] = [
 ]
 
 const operationItems: NavItem[] = [
-  { label: 'Mal Kabul', icon: Truck },
   { label: 'Transferler', icon: Building2 },
   { label: 'Sevkiyatlar', icon: Send },
 ]
@@ -109,6 +108,16 @@ function Sidebar({ open, onClose }: SidebarProps) {
         </NavLink>
 
         <div className="nav-section-label nav-section-spaced">Operasyonlar</div>
+        <NavLink
+          to="/goods-receipts"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Truck size={18} />
+          <span>Mal Kabul</span>
+        </NavLink>
         <NavLink
           to="/orders"
           className={({ isActive }) =>

@@ -13,6 +13,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     public DbSet<StockMovement> StockMovements => Set<StockMovement>();
     public DbSet<Order> Orders => Set<Order>();
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
+    public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
+    public DbSet<GoodsReceiptLine> GoodsReceiptLines => Set<GoodsReceiptLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -179,6 +181,51 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
         {
             entity.ToTable(table => table.HasCheckConstraint(
                 "CK_OrderLines_Quantity",
+                "[Quantity] > 0"));
+
+            entity.HasKey(line => line.Id);
+
+            entity.HasOne(line => line.Product)
+                .WithMany()
+                .HasForeignKey(line => line.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<GoodsReceipt>(entity =>
+        {
+            entity.HasKey(receipt => receipt.Id);
+
+            entity.Property(receipt => receipt.ReceiptNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(receipt => receipt.SupplierName)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.HasIndex(receipt => receipt.ReceiptNumber)
+                .IsUnique();
+
+            entity.HasOne(receipt => receipt.Warehouse)
+                .WithMany()
+                .HasForeignKey(receipt => receipt.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(receipt => receipt.Location)
+                .WithMany()
+                .HasForeignKey(receipt => receipt.LocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(receipt => receipt.Lines)
+                .WithOne(line => line.GoodsReceipt)
+                .HasForeignKey(line => line.GoodsReceiptId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<GoodsReceiptLine>(entity =>
+        {
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_GoodsReceiptLines_Quantity",
                 "[Quantity] > 0"));
 
             entity.HasKey(line => line.Id);
