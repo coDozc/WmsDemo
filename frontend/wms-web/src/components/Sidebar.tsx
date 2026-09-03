@@ -2,6 +2,7 @@ import {
   Boxes,
   Building2,
   ClipboardList,
+  FileText,
   LayoutDashboard,
   MapPin,
   Package,
@@ -108,6 +109,16 @@ function Sidebar({ open, onClose }: SidebarProps) {
         </NavLink>
 
         <div className="nav-section-label nav-section-spaced">Operasyonlar</div>
+        <NavLink
+          to="/orders"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <FileText size={18} />
+          <span>Siparişler</span>
+        </NavLink>
         <DisabledNavItems items={operationItems} />
         <NavLink
           to="/stock-movements"

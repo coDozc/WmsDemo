@@ -223,6 +223,10 @@
   grid-template-columns: minmax(260px, 1fr) 190px 40px;
 }
 
+.orders-toolbar {
+  grid-template-columns: minmax(260px, 1fr) 190px 40px auto;
+}
+
 .search-control {
   position: relative;
 }
@@ -527,6 +531,44 @@ textarea.form-control {
   min-width: 1060px;
 }
 
+.orders-table {
+  min-width: 1050px;
+}
+
+.order-status {
+  display: inline-flex;
+  min-height: 24px;
+  align-items: center;
+  padding: 3px 8px;
+  color: #455049;
+  background: #edf0ed;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.order-status.readytopick,
+.order-status.picking {
+  color: #185f78;
+  background: #e5f3f7;
+}
+
+.order-status.shipping {
+  color: #795a13;
+  background: #fff4d9;
+}
+
+.order-status.completed {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.order-status.cancelled {
+  color: #a33434;
+  background: #fff0f0;
+}
+
 .row-actions {
   display: flex;
   justify-content: flex-end;
@@ -576,6 +618,57 @@ textarea.form-control {
   background: #ffffff;
   border-radius: 7px;
   box-shadow: 0 18px 60px rgba(15, 20, 17, 0.24);
+}
+
+.order-dialog {
+  width: min(760px, 100%);
+}
+
+.order-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.order-customer-field {
+  grid-column: 1 / -1;
+}
+
+.order-lines-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 22px 0 10px;
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.order-lines-header .btn {
+  display: inline-flex;
+  min-height: 34px;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.order-line {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) 110px 36px;
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  background: #f8f9f8;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.order-line-remove {
+  width: 36px;
+  height: 40px;
 }
 
 .dialog-header,
@@ -694,7 +787,8 @@ textarea.form-control {
   }
 
   .inventory-toolbar,
-  .movements-toolbar {
+  .movements-toolbar,
+  .orders-toolbar {
     grid-template-columns: minmax(0, 1fr) 40px;
   }
 
@@ -767,5 +861,14 @@ textarea.form-control {
     width: 100%;
     max-height: 92vh;
     border-radius: 7px 7px 0 0;
+  }
+
+  .order-form-grid,
+  .order-line {
+    grid-template-columns: 1fr;
+  }
+
+  .order-line-remove {
+    justify-self: end;
   }
 }

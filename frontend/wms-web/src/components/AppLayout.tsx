@@ -8,7 +8,9 @@ function AppLayout() {
   const location = useLocation()
   const pageTitle = location.pathname.startsWith('/warehouses')
     ? 'Depolar'
-    : location.pathname.startsWith('/locations')
+    : location.pathname.startsWith('/orders')
+      ? 'Siparişler'
+      : location.pathname.startsWith('/locations')
       ? 'Lokasyonlar'
       : location.pathname.startsWith('/stock-movements')
         ? 'Stok Hareketleri'
