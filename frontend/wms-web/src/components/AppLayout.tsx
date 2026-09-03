@@ -10,6 +10,10 @@ function AppLayout() {
     ? 'Depolar'
     : location.pathname.startsWith('/goods-receipts')
       ? 'Mal Kabul'
+    : location.pathname.startsWith('/stock-transfers')
+      ? 'Transferler'
+    : location.pathname.startsWith('/shipments')
+      ? 'Sevkiyatlar'
     : location.pathname.startsWith('/orders')
       ? 'Siparişler'
       : location.pathname.startsWith('/locations')

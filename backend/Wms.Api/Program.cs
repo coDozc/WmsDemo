@@ -18,6 +18,8 @@ builder.Services.AddScoped<IInventoryService, InventoryService>();
 builder.Services.AddScoped<IStockMovementService, StockMovementService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IGoodsReceiptService, GoodsReceiptService>();
+builder.Services.AddScoped<IStockTransferService, StockTransferService>();
+builder.Services.AddScoped<IShipmentService, ShipmentService>();
 
 builder.Services.AddDbContext<WmsDbContext>(options =>
     options.UseSqlServer(

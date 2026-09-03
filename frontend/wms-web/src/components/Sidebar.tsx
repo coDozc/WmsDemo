@@ -27,11 +27,6 @@ const disabledManagementItems: NavItem[] = [
   { label: 'Dashboard', icon: LayoutDashboard },
 ]
 
-const operationItems: NavItem[] = [
-  { label: 'Transferler', icon: Building2 },
-  { label: 'Sevkiyatlar', icon: Send },
-]
-
 function DisabledNavItems({ items }: { items: NavItem[] }) {
   return items.map(({ label, icon: Icon }) => (
     <span className="sidebar-link is-disabled" aria-disabled="true" key={label}>
@@ -128,7 +123,26 @@ function Sidebar({ open, onClose }: SidebarProps) {
           <FileText size={18} />
           <span>Siparişler</span>
         </NavLink>
-        <DisabledNavItems items={operationItems} />
+        <NavLink
+          to="/stock-transfers"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Building2 size={18} />
+          <span>Transferler</span>
+        </NavLink>
+        <NavLink
+          to="/shipments"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Send size={18} />
+          <span>Sevkiyatlar</span>
+        </NavLink>
         <NavLink
           to="/stock-movements"
           className={({ isActive }) =>

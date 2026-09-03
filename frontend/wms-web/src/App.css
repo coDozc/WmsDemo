@@ -543,6 +543,10 @@ textarea.form-control {
   min-width: 1080px;
 }
 
+.operation-table {
+  min-width: 1120px;
+}
+
 .order-status {
   display: inline-flex;
   min-height: 24px;
@@ -737,6 +741,49 @@ textarea.form-control {
 .receipt-detail-lines span,
 .receipt-detail-lines small {
   display: block;
+}
+
+.shipment-order-preview {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  margin-top: 20px;
+  padding: 14px;
+  gap: 12px;
+  background: #f8f9f8;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+}
+
+.shipment-order-preview > div > span,
+.shipment-order-preview > div > strong {
+  display: block;
+}
+
+.shipment-order-preview > div > span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.shipment-order-preview > div > strong {
+  margin-top: 3px;
+  color: var(--ink);
+  font-size: 0.82rem;
+}
+
+.shipment-preview-lines {
+  grid-column: 1 / -1;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.shipment-preview-lines span {
+  display: flex;
+  min-height: 30px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #464d48;
+  font-size: 0.76rem;
 }
 
 .receipt-detail-lines small {
@@ -945,6 +992,14 @@ textarea.form-control {
 
   .receipt-summary {
     grid-template-columns: 1fr;
+  }
+
+  .shipment-order-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .shipment-preview-lines {
+    grid-column: 1;
   }
 
   .order-line-remove {

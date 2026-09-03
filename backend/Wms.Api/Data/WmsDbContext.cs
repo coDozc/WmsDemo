@@ -15,6 +15,10 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     public DbSet<OrderLine> OrderLines => Set<OrderLine>();
     public DbSet<GoodsReceipt> GoodsReceipts => Set<GoodsReceipt>();
     public DbSet<GoodsReceiptLine> GoodsReceiptLines => Set<GoodsReceiptLine>();
+    public DbSet<StockTransfer> StockTransfers => Set<StockTransfer>();
+    public DbSet<StockTransferLine> StockTransferLines => Set<StockTransferLine>();
+    public DbSet<Shipment> Shipments => Set<Shipment>();
+    public DbSet<ShipmentLine> ShipmentLines => Set<ShipmentLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -229,6 +233,101 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
                 "[Quantity] > 0"));
 
             entity.HasKey(line => line.Id);
+
+            entity.HasOne(line => line.Product)
+                .WithMany()
+                .HasForeignKey(line => line.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<StockTransfer>(entity =>
+        {
+            entity.HasKey(transfer => transfer.Id);
+
+            entity.Property(transfer => transfer.TransferNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.HasIndex(transfer => transfer.TransferNumber)
+                .IsUnique();
+
+            entity.HasOne(transfer => transfer.FromLocation)
+                .WithMany()
+                .HasForeignKey(transfer => transfer.FromLocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(transfer => transfer.ToLocation)
+                .WithMany()
+                .HasForeignKey(transfer => transfer.ToLocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(transfer => transfer.Lines)
+                .WithOne(line => line.StockTransfer)
+                .HasForeignKey(line => line.StockTransferId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<StockTransferLine>(entity =>
+        {
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_StockTransferLines_Quantity",
+                "[Quantity] > 0"));
+
+            entity.HasKey(line => line.Id);
+
+            entity.HasIndex(line => new { line.StockTransferId, line.ProductId })
+                .IsUnique();
+
+            entity.HasOne(line => line.Product)
+                .WithMany()
+                .HasForeignKey(line => line.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Shipment>(entity =>
+        {
+            entity.HasKey(shipment => shipment.Id);
+
+            entity.Property(shipment => shipment.ShipmentNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(shipment => shipment.CarrierName)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.HasIndex(shipment => shipment.ShipmentNumber)
+                .IsUnique();
+
+            entity.HasIndex(shipment => shipment.OrderId)
+                .IsUnique();
+
+            entity.HasOne(shipment => shipment.Order)
+                .WithMany()
+                .HasForeignKey(shipment => shipment.OrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(shipment => shipment.Location)
+                .WithMany()
+                .HasForeignKey(shipment => shipment.LocationId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(shipment => shipment.Lines)
+                .WithOne(line => line.Shipment)
+                .HasForeignKey(line => line.ShipmentId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<ShipmentLine>(entity =>
+        {
+            entity.ToTable(table => table.HasCheckConstraint(
+                "CK_ShipmentLines_Quantity",
+                "[Quantity] > 0"));
+
+            entity.HasKey(line => line.Id);
+
+            entity.HasIndex(line => new { line.ShipmentId, line.ProductId })
+                .IsUnique();
 
             entity.HasOne(line => line.Product)
                 .WithMany()
