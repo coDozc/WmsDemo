@@ -9,6 +9,7 @@ import ShipmentsPage from './pages/ShipmentsPage'
 import StockMovementsPage from './pages/StockMovementsPage'
 import StockTransfersPage from './pages/StockTransfersPage'
 import WarehousesPage from './pages/WarehousesPage'
+import WarehouseDetailPage from './pages/WarehouseDetailPage'
 import './App.css'
 
 function App() {
@@ -25,6 +26,7 @@ function App() {
         <Route path="shipments" element={<ShipmentsPage />} />
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="stock-movements" element={<StockMovementsPage />} />
+        <Route path="warehouses/:warehouseId" element={<WarehouseDetailPage />} />
         <Route path="*" element={<Navigate to="/products" replace />} />
       </Route>
     </Routes>

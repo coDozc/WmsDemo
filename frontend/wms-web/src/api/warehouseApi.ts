@@ -25,6 +25,16 @@ export async function getWarehouses(): Promise<Warehouse[]> {
   return response.json()
 }
 
+export async function getWarehouseById(id: number): Promise<Warehouse> {
+  const response = await fetch(`${baseUrl}/${id}`)
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, 'Depo bilgisi alınamadı.'))
+  }
+
+  return response.json()
+}
+
 export async function createWarehouse(
   request: CreateWarehouseRequest,
 ): Promise<Warehouse> {

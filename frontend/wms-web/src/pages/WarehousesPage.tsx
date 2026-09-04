@@ -10,7 +10,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   createWarehouse,
   deactivateWarehouse,
@@ -206,8 +206,8 @@ function WarehousesPage() {
             <tbody>
               {!loading && visibleWarehouses.map((warehouse) => (
                 <tr key={warehouse.id}>
-                  <td><span className="sku-text">{warehouse.code}</span></td>
-                  <td className="product-name">{warehouse.name}</td>
+                  <td><Link className="warehouse-table-link sku-text" to={`/warehouses/${warehouse.id}`}>{warehouse.code}</Link></td>
+                  <td className="product-name"><Link className="warehouse-table-link" to={`/warehouses/${warehouse.id}`}>{warehouse.name}</Link></td>
                   <td>
                     <span className={`status-badge ${warehouse.isActive ? 'active' : 'inactive'}`}>
                       {warehouse.isActive ? 'Aktif' : 'Pasif'}

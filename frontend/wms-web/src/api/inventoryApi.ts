@@ -12,8 +12,23 @@ async function getErrorMessage(response: Response, fallback: string) {
   }
 }
 
-export async function getInventory(): Promise<InventoryBalance[]> {
-  const response = await fetch('/api/inventory')
+type InventoryFilters = {
+  warehouseId?: number
+  locationId?: number
+  productId?: number
+}
+
+export async function getInventory(
+    filters: InventoryFilters = {},
+): Promise<InventoryBalance[]> {
+  const query = new URLSearchParams()
+
+  if (filters.warehouseId) query.set('warehouseId', String(filters.warehouseId))
+  if (filters.locationId) query.set('locationId', String(filters.locationId))
+  if (filters.productId) query.set('productId', String(filters.productId))
+
+  const url = query.size > 0 ? `/api/inventory?${query}` : '/api/inventory'
+  const response = await fetch(url)
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response, 'Stoklar alınamadı.'))
