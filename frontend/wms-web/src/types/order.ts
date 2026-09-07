@@ -33,7 +33,6 @@ export type OrderLineRequest = {
 }
 
 export type SaveOrderRequest = {
-  orderNumber: string
   warehouseId: number
   customerName: string
   lines: OrderLineRequest[]

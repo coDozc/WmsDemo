@@ -20,7 +20,6 @@ export type StockTransfer = {
 }
 
 export type CreateStockTransferRequest = {
-  transferNumber: string
   fromLocationId: number
   toLocationId: number
   lines: Array<{ productId: number; quantity: number }>

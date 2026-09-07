@@ -29,15 +29,8 @@ public class GoodsReceiptService(WmsDbContext dbContext)
     public async Task<GoodsReceiptResponse> CreateAsync(
         CreateGoodsReceiptRequest request)
     {
-        var receiptNumber = request.ReceiptNumber.Trim().ToUpperInvariant();
+        var receiptNumber = DocumentNumberGenerator.Create("MK");
         var supplierName = request.SupplierName.Trim();
-
-        if (await dbContext.GoodsReceipts.AnyAsync(receipt =>
-                receipt.ReceiptNumber == receiptNumber))
-        {
-            throw new InvalidOperationException(
-                "Bu mal kabul numarası daha önce kullanılmış.");
-        }
 
         var location = await dbContext.Locations
             .Include(item => item.Warehouse)

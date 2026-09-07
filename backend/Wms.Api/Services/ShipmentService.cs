@@ -27,15 +27,8 @@ public class ShipmentService(WmsDbContext dbContext) : IShipmentService
 
     public async Task<ShipmentResponse> CreateAsync(CreateShipmentRequest request)
     {
-        var shipmentNumber = request.ShipmentNumber.Trim().ToUpperInvariant();
+        var shipmentNumber = DocumentNumberGenerator.Create("SVK");
         var carrierName = request.CarrierName.Trim();
-
-        if (await dbContext.Shipments.AnyAsync(shipment =>
-                shipment.ShipmentNumber == shipmentNumber))
-        {
-            throw new InvalidOperationException(
-                "Bu sevkiyat numarası daha önce kullanılmış.");
-        }
 
         var order = await dbContext.Orders
             .Include(item => item.Warehouse)

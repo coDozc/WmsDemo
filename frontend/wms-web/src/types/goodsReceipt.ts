@@ -19,7 +19,6 @@ export type GoodsReceipt = {
 }
 
 export type CreateGoodsReceiptRequest = {
-  receiptNumber: string
   supplierName: string
   warehouseId: number
   locationId: number

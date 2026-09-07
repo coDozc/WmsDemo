@@ -539,7 +539,7 @@ textarea.form-control {
 }
 
 .inventory-table {
-  min-width: 1050px;
+  min-width: 1180px;
 }
 
 .movements-table {
@@ -931,7 +931,7 @@ textarea.form-control {
 }
 
 .location-stock-table {
-  min-width: 720px;
+  min-width: 840px;
   font-size: 0.78rem;
 }
 

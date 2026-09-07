@@ -5,10 +5,6 @@ namespace Wms.Api.Contracts.GoodsReceipts;
 public class CreateGoodsReceiptRequest
 {
     [Required]
-    [MaxLength(50)]
-    public string ReceiptNumber { get; set; } = string.Empty;
-
-    [Required]
     [MaxLength(150)]
     public string SupplierName { get; set; } = string.Empty;
 

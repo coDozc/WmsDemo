@@ -4,10 +4,6 @@ namespace Wms.Api.Contracts.Orders;
 
 public class CreateOrderRequest
 {
-    [Required]
-    [MaxLength(50)]
-    public string OrderNumber { get; set; } = string.Empty;
-
     [Range(1, int.MaxValue)]
     public int WarehouseId { get; set; }
 

@@ -16,16 +16,18 @@ type InventoryFilters = {
   warehouseId?: number
   locationId?: number
   productId?: number
+  includeZero?: boolean
 }
 
 export async function getInventory(
-    filters: InventoryFilters = {},
+  filters: InventoryFilters = {},
 ): Promise<InventoryBalance[]> {
   const query = new URLSearchParams()
 
   if (filters.warehouseId) query.set('warehouseId', String(filters.warehouseId))
   if (filters.locationId) query.set('locationId', String(filters.locationId))
   if (filters.productId) query.set('productId', String(filters.productId))
+  if (filters.includeZero) query.set('includeZero', 'true')
 
   const url = query.size > 0 ? `/api/inventory?${query}` : '/api/inventory'
   const response = await fetch(url)

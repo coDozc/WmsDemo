@@ -20,7 +20,6 @@ import type { Warehouse } from '../types/warehouse'
 type StatusFilter = 'all' | OrderStatus
 
 type OrderFormState = {
-  orderNumber: string
   warehouseId: string
   customerName: string
   lines: Array<{ productId: string; quantity: number }>
@@ -36,7 +35,6 @@ const statusLabels: Record<OrderStatus, string> = {
 }
 
 const emptyForm: OrderFormState = {
-  orderNumber: '',
   warehouseId: '',
   customerName: '',
   lines: [{ productId: '', quantity: 1 }],
@@ -124,7 +122,6 @@ function OrdersPage() {
   function openEditForm(order: Order) {
     setEditingOrder(order)
     setForm({
-      orderNumber: order.orderNumber,
       warehouseId: String(order.warehouseId),
       customerName: order.customerName,
       lines: order.lines.map((line) => ({
@@ -168,7 +165,6 @@ function OrdersPage() {
       }
 
       const request = {
-        orderNumber: form.orderNumber,
         warehouseId: Number(form.warehouseId),
         customerName: form.customerName,
         lines,
@@ -260,16 +256,15 @@ function OrdersPage() {
         <div className="dialog-backdrop" role="presentation">
           <div className="product-dialog order-dialog" role="dialog" aria-modal="true" aria-labelledby="order-dialog-title">
             <div className="dialog-header">
-              <div><span className="dialog-kicker">Çıkış operasyonu</span><h2 id="order-dialog-title">{editingOrder ? 'Siparişi Düzenle' : 'Yeni Sipariş'}</h2></div>
+              <div><span className="dialog-kicker">Çıkış operasyonu</span><h2 id="order-dialog-title">{editingOrder ? `Siparişi Düzenle · ${editingOrder.orderNumber}` : 'Yeni Sipariş'}</h2></div>
               <button type="button" className="icon-button" title="Formu kapat" aria-label="Formu kapat" onClick={() => setFormOpen(false)}><X size={20} /></button>
             </div>
             <form onSubmit={handleSubmit}>
               <div className="dialog-body">
                 {formError && <div className="alert alert-danger py-2">{formError}</div>}
                 <div className="order-form-grid">
-                  <div><label className="form-label" htmlFor="order-number">Sipariş numarası</label><input id="order-number" className="form-control" maxLength={50} required autoFocus value={form.orderNumber} onChange={(event) => setForm({ ...form, orderNumber: event.target.value })} /></div>
                   <div><label className="form-label" htmlFor="order-warehouse">Depo</label><select id="order-warehouse" className="form-select" required value={form.warehouseId} onChange={(event) => setForm({ ...form, warehouseId: event.target.value })}><option value="">Depo seçin</option>{activeWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.code} · {warehouse.name}</option>)}</select></div>
-                  <div className="order-customer-field"><label className="form-label" htmlFor="order-customer">Müşteri</label><input id="order-customer" className="form-control" maxLength={200} required value={form.customerName} onChange={(event) => setForm({ ...form, customerName: event.target.value })} /></div>
+                  <div><label className="form-label" htmlFor="order-customer">Müşteri</label><input id="order-customer" className="form-control" maxLength={200} required value={form.customerName} onChange={(event) => setForm({ ...form, customerName: event.target.value })} /></div>
                 </div>
 
                 <div className="order-lines-header"><strong>Sipariş Kalemleri</strong><button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setForm({ ...form, lines: [...form.lines, { productId: '', quantity: 1 }] })}><Plus size={16} /> Satır Ekle</button></div>

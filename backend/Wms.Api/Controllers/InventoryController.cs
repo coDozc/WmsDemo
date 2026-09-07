@@ -13,12 +13,14 @@ public class InventoryController(IInventoryService inventoryService)
     public async Task<ActionResult<IReadOnlyList<InventoryBalanceResponse>>> GetAll(
         [FromQuery] int? warehouseId,
         [FromQuery] int? locationId,
-        [FromQuery] int? productId)
+        [FromQuery] int? productId,
+        [FromQuery] bool includeZero = false)
     {
         var balances = await inventoryService.GetAllAsync(
             warehouseId,
             locationId,
-            productId);
+            productId,
+            includeZero);
 
         return Ok(balances);
     }

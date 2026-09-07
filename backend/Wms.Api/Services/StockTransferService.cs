@@ -29,19 +29,12 @@ public class StockTransferService(WmsDbContext dbContext)
     public async Task<StockTransferResponse> CreateAsync(
         CreateStockTransferRequest request)
     {
-        var transferNumber = request.TransferNumber.Trim().ToUpperInvariant();
+        var transferNumber = DocumentNumberGenerator.Create("TRF");
 
         if (request.FromLocationId == request.ToLocationId)
         {
             throw new InvalidOperationException(
                 "Kaynak ve hedef lokasyon aynı olamaz.");
-        }
-
-        if (await dbContext.StockTransfers.AnyAsync(transfer =>
-                transfer.TransferNumber == transferNumber))
-        {
-            throw new InvalidOperationException(
-                "Bu transfer numarası daha önce kullanılmış.");
         }
 
         var locations = await dbContext.Locations

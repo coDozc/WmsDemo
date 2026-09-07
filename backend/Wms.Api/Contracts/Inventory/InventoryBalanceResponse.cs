@@ -15,6 +15,7 @@ public class InventoryBalanceResponse
     public string? LocationName { get; set; }
     public LocationType LocationType { get; set; }
     public int Quantity { get; set; }
+    public int WarehouseQuantity { get; set; }
     public int MinimumStock { get; set; }
     public bool IsBelowMinimumStock { get; set; }
     public DateTime UpdatedAtUtc { get; set; }

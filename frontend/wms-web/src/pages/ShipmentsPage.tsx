@@ -18,14 +18,12 @@ import type { Order } from '../types/order'
 import type { Shipment } from '../types/shipment'
 
 type ShipmentFormState = {
-  shipmentNumber: string
   carrierName: string
   orderId: string
   locationId: string
 }
 
 const emptyForm: ShipmentFormState = {
-  shipmentNumber: '',
   carrierName: '',
   orderId: '',
   locationId: '',
@@ -127,7 +125,6 @@ function ShipmentsPage() {
     try {
       if (!form.locationId) throw new Error('Sipariş deposunda aktif Shipping lokasyonu bulunamadı.')
       await createShipment({
-        shipmentNumber: form.shipmentNumber,
         carrierName: form.carrierName,
         orderId: Number(form.orderId),
         locationId: Number(form.locationId),
@@ -161,7 +158,6 @@ function ShipmentsPage() {
       <div className="dialog-header"><div><span className="dialog-kicker">Çıkış operasyonu</span><h2 id="shipment-dialog-title">Yeni Sevkiyat</h2></div><button type="button" className="icon-button" title="Formu kapat" aria-label="Formu kapat" onClick={() => setFormOpen(false)}><X size={20} /></button></div>
       <form onSubmit={handleSubmit}><div className="dialog-body">{formError && <div className="alert alert-danger py-2">{formError}</div>}
         <div className="order-form-grid">
-          <div><label className="form-label" htmlFor="shipment-number">Sevkiyat numarası</label><input id="shipment-number" className="form-control" maxLength={50} required autoFocus value={form.shipmentNumber} onChange={(event) => setForm({ ...form, shipmentNumber: event.target.value })} /></div>
           <div><label className="form-label" htmlFor="shipment-carrier">Taşıyıcı</label><input id="shipment-carrier" className="form-control" maxLength={100} required placeholder="Örn. Demo Lojistik" value={form.carrierName} onChange={(event) => setForm({ ...form, carrierName: event.target.value })} /></div>
           <div><label className="form-label" htmlFor="shipment-order">Sipariş</label><select id="shipment-order" className="form-select" required value={form.orderId} onChange={(event) => changeOrder(event.target.value)}><option value="">Sipariş seçin</option>{eligibleOrders.map((order) => <option key={order.id} value={order.id}>{order.orderNumber} · {order.customerName}</option>)}</select></div>
           <div><label className="form-label" htmlFor="shipment-location">Shipping lokasyonu</label><select id="shipment-location" className="form-select" required disabled={!form.orderId} value={form.locationId} onChange={(event) => setForm({ ...form, locationId: event.target.value })}><option value="">Shipping lokasyonu seçin</option>{shippingLocations.map((location) => <option key={location.id} value={location.id}>{location.code}{location.name ? ` · ${location.name}` : ''}</option>)}</select></div>

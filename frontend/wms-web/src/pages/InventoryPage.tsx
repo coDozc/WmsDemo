@@ -16,7 +16,7 @@ import type { Location } from '../types/location'
 import type { Product } from '../types/product'
 import type { Warehouse } from '../types/warehouse'
 
-type StockFilter = 'all' | 'low' | 'normal'
+type StockFilter = 'available' | 'low' | 'normal' | 'zero' | 'all'
 
 type AdjustmentFormState = {
   productId: string
@@ -44,18 +44,20 @@ function InventoryPage() {
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
   const [warehouseFilter, setWarehouseFilter] = useState('all')
-  const [stockFilter, setStockFilter] = useState<StockFilter>('all')
+  const [stockFilter, setStockFilter] = useState<StockFilter>('available')
   const [formOpen, setFormOpen] = useState(false)
   const [form, setForm] = useState<AdjustmentFormState>(emptyForm)
   const [saving, setSaving] = useState(false)
   const [formError, setFormError] = useState<string | null>(null)
 
-  async function loadBalances() {
+  async function loadBalances(filter: StockFilter = stockFilter) {
     setLoading(true)
     setError(null)
 
     try {
-      setBalances(await getInventory())
+      setBalances(await getInventory({
+        includeZero: filter === 'zero' || filter === 'all',
+      }))
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Stoklar alınamadı.')
     } finally {
@@ -104,8 +106,10 @@ function InventoryPage() {
 
       const matchesStock =
         stockFilter === 'all' ||
-        (stockFilter === 'low' && balance.isBelowMinimumStock) ||
-        (stockFilter === 'normal' && !balance.isBelowMinimumStock)
+        (stockFilter === 'available' && balance.quantity > 0) ||
+        (stockFilter === 'low' && balance.quantity > 0 && balance.isBelowMinimumStock) ||
+        (stockFilter === 'normal' && balance.quantity > 0 && !balance.isBelowMinimumStock) ||
+        (stockFilter === 'zero' && balance.quantity === 0)
 
       return matchesSearch && matchesWarehouse && matchesStock
     })
@@ -123,6 +127,11 @@ function InventoryPage() {
     } finally {
       setLocationsLoading(false)
     }
+  }
+
+  async function changeStockFilter(value: StockFilter) {
+    setStockFilter(value)
+    await loadBalances(value)
   }
 
   async function openAdjustmentForm() {
@@ -178,6 +187,11 @@ function InventoryPage() {
   const activeProducts = products.filter((product) => product.isActive)
   const activeWarehouses = warehouses.filter((warehouse) => warehouse.isActive)
   const totalQuantity = visibleBalances.reduce((total, balance) => total + balance.quantity, 0)
+  const criticalProductCount = new Set(
+    balances
+      .filter((balance) => balance.quantity > 0 && balance.isBelowMinimumStock)
+      .map((balance) => `${balance.warehouseId}-${balance.productId}`),
+  ).size
 
   return (
     <section>
@@ -192,10 +206,12 @@ function InventoryPage() {
           {warehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.code} · {warehouse.name}</option>)}
         </select>
 
-        <select className="form-select" aria-label="Stok durumuna göre filtrele" value={stockFilter} onChange={(event) => setStockFilter(event.target.value as StockFilter)}>
-          <option value="all">Tüm stoklar</option>
+        <select className="form-select" aria-label="Stok durumuna göre filtrele" value={stockFilter} onChange={(event) => void changeStockFilter(event.target.value as StockFilter)}>
+          <option value="available">Mevcut stoklar</option>
           <option value="low">Kritik stok</option>
           <option value="normal">Normal stok</option>
+          <option value="zero">Sıfır stoklar</option>
+          <option value="all">Tüm bakiyeler</option>
         </select>
 
         <button type="button" className="icon-button toolbar-refresh" title="Listeyi yenile" aria-label="Listeyi yenile" onClick={() => void loadBalances()} disabled={loading}>
@@ -213,7 +229,7 @@ function InventoryPage() {
         <span className="list-meta-separator" />
         <span>{totalQuantity} toplam miktar</span>
         <span className="list-meta-separator" />
-        <span>{balances.filter((balance) => balance.isBelowMinimumStock).length} kritik</span>
+        <span>{criticalProductCount} kritik ürün</span>
       </div>
 
       {error && <div className="alert alert-danger d-flex align-items-center gap-2" role="alert"><CircleAlert size={18} /><span>{error}</span></div>}
@@ -221,7 +237,7 @@ function InventoryPage() {
       <div className="table-shell">
         <div className="table-responsive">
           <table className="table products-table inventory-table mb-0 align-middle">
-            <thead><tr><th>SKU</th><th>Ürün</th><th>Depo</th><th>Lokasyon</th><th className="text-end">Miktar</th><th className="text-end">Minimum</th><th>Durum</th><th>Güncelleme</th></tr></thead>
+            <thead><tr><th>SKU</th><th>Ürün</th><th>Depo</th><th>Lokasyon</th><th className="text-end">Lokasyon Stoku</th><th className="text-end">Depo Toplamı</th><th className="text-end">Minimum</th><th>Durum</th><th>Güncelleme</th></tr></thead>
             <tbody>
               {!loading && visibleBalances.map((balance) => (
                 <tr key={balance.id}>
@@ -229,9 +245,10 @@ function InventoryPage() {
                   <td className="product-name">{balance.productName}</td>
                   <td>{balance.warehouseName}</td>
                   <td><span className="sku-text">{balance.locationCode}</span>{balance.locationName && <span className="cell-subtext">{balance.locationName}</span>}</td>
-                  <td className="text-end"><strong className={balance.isBelowMinimumStock ? 'quantity-low' : ''}>{balance.quantity}</strong></td>
+                  <td className="text-end"><strong className={balance.quantity === 0 ? 'muted-value' : ''}>{balance.quantity}</strong></td>
+                  <td className="text-end"><strong className={balance.isBelowMinimumStock ? 'quantity-low' : ''}>{balance.warehouseQuantity}</strong></td>
                   <td className="text-end">{balance.minimumStock}</td>
-                  <td><span className={`status-badge ${balance.isBelowMinimumStock ? 'critical' : 'active'}`}>{balance.isBelowMinimumStock ? 'Kritik' : 'Normal'}</span></td>
+                  <td><span className={`status-badge ${balance.quantity === 0 ? 'inactive' : balance.isBelowMinimumStock ? 'critical' : 'active'}`}>{balance.quantity === 0 ? 'Sıfır' : balance.isBelowMinimumStock ? 'Kritik' : 'Normal'}</span></td>
                   <td>{new Date(balance.updatedAtUtc).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</td>
                 </tr>
               ))}

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Wms.Api.Contracts.Inventory;
 using Wms.Api.Data;
@@ -12,7 +11,8 @@ public class InventoryService(WmsDbContext dbContext) : IInventoryService
     public async Task<IReadOnlyList<InventoryBalanceResponse>> GetAllAsync(
         int? warehouseId,
         int? locationId,
-        int? productId)
+        int? productId,
+        bool includeZero)
     {
         var query = dbContext.InventoryBalances.AsNoTracking();
 
@@ -34,19 +34,22 @@ public class InventoryService(WmsDbContext dbContext) : IInventoryService
                 balance.ProductId == productId.Value);
         }
 
-        return await query
-            .OrderBy(balance => balance.Product.Name)
-            .ThenBy(balance => balance.Location.Code)
-            .Select(ToResponse)
+        if (!includeZero)
+        {
+            query = query.Where(balance => balance.Quantity > 0);
+        }
+
+        return await SelectResponse(query)
+            .OrderBy(balance => balance.ProductName)
+            .ThenBy(balance => balance.LocationCode)
             .ToListAsync();
     }
 
     public async Task<InventoryBalanceResponse?> GetByIdAsync(int id)
     {
-        return await dbContext.InventoryBalances
+        return await SelectResponse(dbContext.InventoryBalances
             .AsNoTracking()
-            .Where(balance => balance.Id == id)
-            .Select(ToResponse)
+            .Where(balance => balance.Id == id))
             .FirstOrDefaultAsync();
     }
 
@@ -139,9 +142,10 @@ public class InventoryService(WmsDbContext dbContext) : IInventoryService
             ?? throw new InvalidOperationException("Stok bakiyesi okunamadı.");
     }
 
-    private static readonly Expression<Func<InventoryBalance,
-        InventoryBalanceResponse>> ToResponse = balance =>
-        new InventoryBalanceResponse
+    private IQueryable<InventoryBalanceResponse> SelectResponse(
+        IQueryable<InventoryBalance> query)
+    {
+        return query.Select(balance => new InventoryBalanceResponse
         {
             Id = balance.Id,
             ProductId = balance.ProductId,
@@ -154,8 +158,18 @@ public class InventoryService(WmsDbContext dbContext) : IInventoryService
             LocationName = balance.Location.Name,
             LocationType = balance.Location.Type,
             Quantity = balance.Quantity,
+            WarehouseQuantity = dbContext.InventoryBalances
+                .Where(other =>
+                    other.ProductId == balance.ProductId &&
+                    other.Location.WarehouseId == balance.Location.WarehouseId)
+                .Sum(other => other.Quantity),
             MinimumStock = balance.Product.MinimumStock,
-            IsBelowMinimumStock = balance.Quantity < balance.Product.MinimumStock,
+            IsBelowMinimumStock = dbContext.InventoryBalances
+                .Where(other =>
+                    other.ProductId == balance.ProductId &&
+                    other.Location.WarehouseId == balance.Location.WarehouseId)
+                .Sum(other => other.Quantity) < balance.Product.MinimumStock,
             UpdatedAtUtc = balance.UpdatedAtUtc
-        };
+        });
+    }
 }

@@ -12,6 +12,7 @@ export type InventoryBalance = {
   locationName: string | null
   locationType: LocationType
   quantity: number
+  warehouseQuantity: number
   minimumStock: number
   isBelowMinimumStock: boolean
   updatedAtUtc: string

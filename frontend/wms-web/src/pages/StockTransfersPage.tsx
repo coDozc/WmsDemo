@@ -19,14 +19,12 @@ import type { Product } from '../types/product'
 import type { StockTransfer } from '../types/stockTransfer'
 
 type TransferFormState = {
-  transferNumber: string
   fromLocationId: string
   toLocationId: string
   lines: Array<{ productId: string; quantity: number }>
 }
 
 const emptyForm: TransferFormState = {
-  transferNumber: '',
   fromLocationId: '',
   toLocationId: '',
   lines: [{ productId: '', quantity: 1 }],
@@ -156,7 +154,6 @@ function StockTransfersPage() {
       if (new Set(productIds).size !== productIds.length) throw new Error('Aynı ürün birden fazla satırda bulunamaz.')
 
       await createStockTransfer({
-        transferNumber: form.transferNumber,
         fromLocationId: Number(form.fromLocationId),
         toLocationId: Number(form.toLocationId),
         lines,
@@ -189,7 +186,7 @@ function StockTransfersPage() {
     {formOpen && <div className="dialog-backdrop" role="presentation"><div className="product-dialog order-dialog" role="dialog" aria-modal="true" aria-labelledby="transfer-dialog-title">
       <div className="dialog-header"><div><span className="dialog-kicker">İç hareket</span><h2 id="transfer-dialog-title">Yeni Transfer</h2></div><button type="button" className="icon-button" title="Formu kapat" aria-label="Formu kapat" onClick={() => setFormOpen(false)}><X size={20} /></button></div>
       <form onSubmit={handleSubmit}><div className="dialog-body">{formError && <div className="alert alert-danger py-2">{formError}</div>}
-        <div className="order-form-grid"><div className="order-customer-field"><label className="form-label" htmlFor="transfer-number">Transfer numarası</label><input id="transfer-number" className="form-control" maxLength={50} required autoFocus value={form.transferNumber} onChange={(event) => setForm({ ...form, transferNumber: event.target.value })} /></div>
+        <div className="order-form-grid">
           <div><label className="form-label" htmlFor="transfer-source">Kaynak lokasyon</label><select id="transfer-source" className="form-select" required value={form.fromLocationId} onChange={(event) => changeSourceLocation(event.target.value)}><option value="">Kaynak seçin</option>{locations.map((location) => <option key={location.id} value={location.id}>{locationLabel(location)} · {location.type}</option>)}</select></div>
           <div><label className="form-label" htmlFor="transfer-target">Hedef lokasyon</label><select id="transfer-target" className="form-select" required value={form.toLocationId} onChange={(event) => setForm({ ...form, toLocationId: event.target.value })}><option value="">Hedef seçin</option>{targetLocations.map((location) => <option key={location.id} value={location.id}>{locationLabel(location)} · {location.type}</option>)}</select></div>
         </div>

@@ -61,8 +61,34 @@ function WarehouseDetailPage() {
   }
 
   useEffect(() => {
-    void loadWarehouseDetail()
-  }, [warehouseId])
+    async function loadInitialWarehouseDetail() {
+      await Promise.resolve()
+
+      if (!Number.isInteger(id) || id < 1) {
+        setError('Geçersiz depo numarası.')
+        setLoading(false)
+        return
+      }
+
+      try {
+        const [warehouseResult, locationResult, inventoryResult] = await Promise.all([
+          getWarehouseById(id),
+          getLocations(id),
+          getInventory({ warehouseId: id }),
+        ])
+
+        setWarehouse(warehouseResult)
+        setLocations(locationResult)
+        setInventory(inventoryResult)
+      } catch (requestError) {
+        setError(requestError instanceof Error ? requestError.message : 'Depo detayı alınamadı.')
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    void loadInitialWarehouseDetail()
+  }, [id])
 
   const inventoryByLocation = useMemo(() => {
     const grouped = new Map<number, InventoryBalance[]>()
@@ -77,7 +103,11 @@ function WarehouseDetailPage() {
   }, [inventory])
 
   const totalQuantity = inventory.reduce((total, balance) => total + balance.quantity, 0)
-  const criticalProductCount = inventory.filter((balance) => balance.isBelowMinimumStock).length
+  const criticalProductCount = new Set(
+    inventory
+      .filter((balance) => balance.isBelowMinimumStock)
+      .map((balance) => balance.productId),
+  ).size
   const activeLocationCount = locations.filter((location) => location.isActive).length
 
   if (!loading && !warehouse) {
@@ -177,7 +207,7 @@ function LocationRows({ location, stocks, totalQuantity, criticalCount, expanded
     {expanded && <tr className="location-stock-row"><td colSpan={8}>
       {stocks.length === 0
         ? <div className="location-empty-stock"><Boxes size={20} /><span>Bu lokasyonda stok bulunmuyor.</span></div>
-        : <div className="location-stock-table-wrap"><table className="table location-stock-table mb-0 align-middle"><thead><tr><th>SKU</th><th>Ürün</th><th className="text-end">Miktar</th><th className="text-end">Minimum</th><th>Durum</th><th>Güncelleme</th></tr></thead><tbody>{stocks.map((stock) => <tr key={stock.id}><td><span className="sku-text">{stock.productSku}</span></td><td className="product-name">{stock.productName}</td><td className="text-end"><strong className={stock.isBelowMinimumStock ? 'quantity-low' : ''}>{stock.quantity}</strong></td><td className="text-end">{stock.minimumStock}</td><td><span className={`status-badge ${stock.isBelowMinimumStock ? 'critical' : 'active'}`}>{stock.isBelowMinimumStock ? 'Kritik' : 'Normal'}</span></td><td>{new Date(stock.updatedAtUtc).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</td></tr>)}</tbody></table></div>}
+        : <div className="location-stock-table-wrap"><table className="table location-stock-table mb-0 align-middle"><thead><tr><th>SKU</th><th>Ürün</th><th className="text-end">Lokasyon</th><th className="text-end">Depo Toplamı</th><th className="text-end">Minimum</th><th>Durum</th><th>Güncelleme</th></tr></thead><tbody>{stocks.map((stock) => <tr key={stock.id}><td><span className="sku-text">{stock.productSku}</span></td><td className="product-name">{stock.productName}</td><td className="text-end"><strong>{stock.quantity}</strong></td><td className="text-end"><strong className={stock.isBelowMinimumStock ? 'quantity-low' : ''}>{stock.warehouseQuantity}</strong></td><td className="text-end">{stock.minimumStock}</td><td><span className={`status-badge ${stock.isBelowMinimumStock ? 'critical' : 'active'}`}>{stock.isBelowMinimumStock ? 'Kritik' : 'Normal'}</span></td><td>{new Date(stock.updatedAtUtc).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</td></tr>)}</tbody></table></div>}
     </td></tr>}
   </>
 }

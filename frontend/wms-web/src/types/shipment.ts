@@ -22,7 +22,6 @@ export type Shipment = {
 }
 
 export type CreateShipmentRequest = {
-  shipmentNumber: string
   carrierName: string
   orderId: number
   locationId: number

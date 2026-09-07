@@ -5,10 +5,6 @@ namespace Wms.Api.Contracts.Shipments;
 public class CreateShipmentRequest
 {
     [Required]
-    [MaxLength(50)]
-    public string ShipmentNumber { get; set; } = string.Empty;
-
-    [Required]
     [MaxLength(100)]
     public string CarrierName { get; set; } = string.Empty;
 

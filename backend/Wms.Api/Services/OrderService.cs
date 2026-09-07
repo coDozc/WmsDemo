@@ -35,9 +35,8 @@ public class OrderService(WmsDbContext dbContext) : IOrderService
 
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest request)
     {
-        var orderNumber = NormalizeOrderNumber(request.OrderNumber);
+        var orderNumber = DocumentNumberGenerator.Create("SIP");
 
-        await EnsureOrderNumberIsUniqueAsync(orderNumber);
         await ValidateOrderDataAsync(request.WarehouseId, request.Lines);
 
         var order = new Order
@@ -76,14 +75,10 @@ public class OrderService(WmsDbContext dbContext) : IOrderService
                 "Yalnızca taslak siparişler güncellenebilir.");
         }
 
-        var orderNumber = NormalizeOrderNumber(request.OrderNumber);
-
-        await EnsureOrderNumberIsUniqueAsync(orderNumber, id);
         await ValidateOrderDataAsync(request.WarehouseId, request.Lines);
 
         dbContext.OrderLines.RemoveRange(order.Lines);
 
-        order.OrderNumber = orderNumber;
         order.WarehouseId = request.WarehouseId;
         order.CustomerName = request.CustomerName.Trim();
         order.Lines = CreateOrderLines(request.Lines);
@@ -119,21 +114,6 @@ public class OrderService(WmsDbContext dbContext) : IOrderService
         await dbContext.SaveChangesAsync();
 
         return true;
-    }
-
-    private async Task EnsureOrderNumberIsUniqueAsync(
-        string orderNumber,
-        int? excludedOrderId = null)
-    {
-        var exists = await dbContext.Orders.AnyAsync(order =>
-            order.OrderNumber == orderNumber &&
-            (!excludedOrderId.HasValue || order.Id != excludedOrderId.Value));
-
-        if (exists)
-        {
-            throw new InvalidOperationException(
-                "Bu sipariş numarası daha önce kullanılmış.");
-        }
     }
 
     private async Task ValidateOrderDataAsync(
@@ -220,8 +200,4 @@ public class OrderService(WmsDbContext dbContext) : IOrderService
         };
     }
 
-    private static string NormalizeOrderNumber(string orderNumber)
-    {
-        return orderNumber.Trim().ToUpperInvariant();
-    }
 }

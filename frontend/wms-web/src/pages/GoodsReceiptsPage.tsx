@@ -20,7 +20,6 @@ import type { Product } from '../types/product'
 import type { Warehouse } from '../types/warehouse'
 
 type ReceiptFormState = {
-  receiptNumber: string
   supplierName: string
   warehouseId: string
   locationId: string
@@ -28,7 +27,6 @@ type ReceiptFormState = {
 }
 
 const emptyForm: ReceiptFormState = {
-  receiptNumber: '',
   supplierName: '',
   warehouseId: '',
   locationId: '',
@@ -187,7 +185,6 @@ function GoodsReceiptsPage() {
       }
 
       await createGoodsReceipt({
-        receiptNumber: form.receiptNumber,
         supplierName: form.supplierName,
         warehouseId: Number(form.warehouseId),
         locationId: Number(form.locationId),
@@ -250,7 +247,6 @@ function GoodsReceiptsPage() {
             <div className="dialog-body">
               {formError && <div className="alert alert-danger py-2">{formError}</div>}
               <div className="order-form-grid">
-                <div><label className="form-label" htmlFor="receipt-number">Belge numarası</label><input id="receipt-number" className="form-control" maxLength={50} required autoFocus value={form.receiptNumber} onChange={(event) => setForm({ ...form, receiptNumber: event.target.value })} /></div>
                 <div><label className="form-label" htmlFor="receipt-supplier">Tedarikçi</label><input id="receipt-supplier" className="form-control" maxLength={150} required value={form.supplierName} onChange={(event) => setForm({ ...form, supplierName: event.target.value })} /></div>
                 <div><label className="form-label" htmlFor="receipt-warehouse">Depo</label><select id="receipt-warehouse" className="form-select" required value={form.warehouseId} onChange={(event) => void changeWarehouse(event.target.value)}><option value="">Depo seçin</option>{activeWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.code} · {warehouse.name}</option>)}</select></div>
                 <div><label className="form-label" htmlFor="receipt-location">Mal kabul lokasyonu</label><select id="receipt-location" className="form-select" required disabled={!form.warehouseId || locationsLoading} value={form.locationId} onChange={(event) => setForm({ ...form, locationId: event.target.value })}><option value="">{locationsLoading ? 'Yükleniyor...' : 'Receiving lokasyonu seçin'}</option>{receivingLocations.map((location) => <option key={location.id} value={location.id}>{location.code}{location.name ? ` · ${location.name}` : ''}</option>)}</select></div>
