@@ -5,6 +5,7 @@ import {
   FileText,
   LayoutDashboard,
   MapPin,
+  Network,
   Package,
   Send,
   Truck,
@@ -61,6 +62,16 @@ function Sidebar({ open, onClose }: SidebarProps) {
       <nav className="sidebar-nav" aria-label="Ana menü">
         <div className="nav-section-label">Yönetim</div>
         <DisabledNavItems items={disabledManagementItems.slice(0, 1)} />
+        <NavLink
+          to="/offices"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <Network size={18} />
+          <span>Ofisler</span>
+        </NavLink>
         <NavLink
           to="/products"
           className={({ isActive }) =>

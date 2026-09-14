@@ -15,8 +15,9 @@ async function getErrorMessage(response: Response, fallback: string) {
   }
 }
 
-export async function getWarehouses(): Promise<Warehouse[]> {
-  const response = await fetch(baseUrl)
+export async function getWarehouses(officeId?: number): Promise<Warehouse[]> {
+  const query = officeId ? `?officeId=${officeId}` : ''
+  const response = await fetch(`${baseUrl}${query}`)
 
   if (!response.ok) {
     throw new Error(await getErrorMessage(response, 'Depolar alınamadı.'))
@@ -36,9 +37,10 @@ export async function getWarehouseById(id: number): Promise<Warehouse> {
 }
 
 export async function createWarehouse(
+  officeId: number,
   request: CreateWarehouseRequest,
 ): Promise<Warehouse> {
-  const response = await fetch(baseUrl, {
+  const response = await fetch(`/api/offices/${officeId}/warehouses`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(request),

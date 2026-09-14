@@ -7,6 +7,7 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     : DbContext(options)
 {
     public DbSet<Product> Products => Set<Product>();
+    public DbSet<Office> Offices => Set<Office>();
     public DbSet<Warehouse> Warehouses => Set<Warehouse>();
     public DbSet<Location> Locations => Set<Location>();
     public DbSet<InventoryBalance> InventoryBalances => Set<InventoryBalance>();
@@ -51,6 +52,34 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
                 .HasFilter("[Barcode] IS NOT NULL");
         });
 
+        modelBuilder.Entity<Office>(entity =>
+        {
+            entity.HasKey(office => office.Id);
+
+            entity.Property(office => office.Code)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(office => office.Name)
+                .HasMaxLength(200)
+                .IsRequired();
+
+            entity.Property(office => office.City)
+                .HasMaxLength(100)
+                .IsRequired();
+
+            entity.Property(office => office.District)
+                .HasMaxLength(100);
+
+            entity.Property(office => office.Type)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.HasIndex(office => office.Code)
+                .IsUnique();
+        });
+
         modelBuilder.Entity<Warehouse>(entity =>
         {
             entity.HasKey(warehouse => warehouse.Id);
@@ -63,8 +92,13 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
                 .HasMaxLength(200)
                 .IsRequired();
 
-            entity.HasIndex(warehouse => warehouse.Code)
+            entity.HasIndex(warehouse => new { warehouse.OfficeId, warehouse.Code })
                 .IsUnique();
+
+            entity.HasOne(warehouse => warehouse.Office)
+                .WithMany(office => office.Warehouses)
+                .HasForeignKey(warehouse => warehouse.OfficeId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
 
         modelBuilder.Entity<Location>(entity =>

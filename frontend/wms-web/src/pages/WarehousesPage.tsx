@@ -11,23 +11,27 @@ import {
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { getOffices } from '../api/officeApi'
 import {
   createWarehouse,
   deactivateWarehouse,
   getWarehouses,
   updateWarehouse,
 } from '../api/warehouseApi'
+import type { Office } from '../types/office'
 import type { Warehouse } from '../types/warehouse'
 
 type StatusFilter = 'all' | 'active' | 'inactive'
 
 type WarehouseFormState = {
+  officeId: string
   code: string
   name: string
   isActive: boolean
 }
 
 const emptyForm: WarehouseFormState = {
+  officeId: '',
   code: '',
   name: '',
   isActive: true,
@@ -36,6 +40,7 @@ const emptyForm: WarehouseFormState = {
 function WarehousesPage() {
   const navigate = useNavigate()
   const [warehouses, setWarehouses] = useState<Warehouse[]>([])
+  const [offices, setOffices] = useState<Office[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -51,7 +56,12 @@ function WarehousesPage() {
     setError(null)
 
     try {
-      setWarehouses(await getWarehouses())
+      const [warehouseResult, officeResult] = await Promise.all([
+        getWarehouses(),
+        getOffices(),
+      ])
+      setWarehouses(warehouseResult)
+      setOffices(officeResult)
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Depolar alınamadı.')
     } finally {
@@ -74,7 +84,8 @@ function WarehousesPage() {
       const matchesSearch =
         !normalizedQuery ||
         warehouse.name.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
-        warehouse.code.toLocaleLowerCase('tr-TR').includes(normalizedQuery)
+        warehouse.code.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
+        warehouse.officeName.toLocaleLowerCase('tr-TR').includes(normalizedQuery)
 
       const matchesStatus =
         statusFilter === 'all' ||
@@ -95,6 +106,7 @@ function WarehousesPage() {
   function openEditForm(warehouse: Warehouse) {
     setEditingWarehouse(warehouse)
     setForm({
+      officeId: String(warehouse.officeId),
       code: warehouse.code,
       name: warehouse.name,
       isActive: warehouse.isActive,
@@ -110,9 +122,16 @@ function WarehousesPage() {
 
     try {
       if (editingWarehouse) {
-        await updateWarehouse(editingWarehouse.id, form)
+        await updateWarehouse(editingWarehouse.id, {
+          code: form.code,
+          name: form.name,
+          isActive: form.isActive,
+        })
       } else {
-        await createWarehouse({ code: form.code, name: form.name })
+        await createWarehouse(Number(form.officeId), {
+          code: form.code,
+          name: form.name,
+        })
       }
 
       setFormOpen(false)
@@ -198,6 +217,7 @@ function WarehousesPage() {
               <tr>
                 <th>Depo kodu</th>
                 <th>Depo adı</th>
+                <th>Bağlı ofis</th>
                 <th>Durum</th>
                 <th>Oluşturma</th>
                 <th className="text-end">İşlemler</th>
@@ -208,6 +228,9 @@ function WarehousesPage() {
                 <tr key={warehouse.id}>
                   <td><Link className="warehouse-table-link sku-text" to={`/warehouses/${warehouse.id}`}>{warehouse.code}</Link></td>
                   <td className="product-name"><Link className="warehouse-table-link" to={`/warehouses/${warehouse.id}`}>{warehouse.name}</Link></td>
+                  <td>
+                    <span className="warehouse-office-name">{warehouse.officeName}</span>
+                  </td>
                   <td>
                     <span className={`status-badge ${warehouse.isActive ? 'active' : 'inactive'}`}>
                       {warehouse.isActive ? 'Aktif' : 'Pasif'}
@@ -286,6 +309,25 @@ function WarehousesPage() {
             <form onSubmit={handleSubmit}>
               <div className="dialog-body">
                 {formError && <div className="alert alert-danger py-2">{formError}</div>}
+
+                <div className="mb-3">
+                  <label className="form-label" htmlFor="warehouse-office">Bağlı ofis</label>
+                  <select
+                    id="warehouse-office"
+                    className="form-select"
+                    required
+                    disabled={Boolean(editingWarehouse)}
+                    value={form.officeId}
+                    onChange={(event) => setForm({ ...form, officeId: event.target.value })}
+                  >
+                    <option value="">Ofis seçin</option>
+                    {offices.filter((office) => office.isActive).map((office) => (
+                      <option value={office.id} key={office.id}>
+                        {office.code} · {office.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
                 <div className="mb-3">
                   <label className="form-label" htmlFor="warehouse-code">Depo kodu</label>

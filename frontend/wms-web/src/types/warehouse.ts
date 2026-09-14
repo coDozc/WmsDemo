@@ -1,5 +1,7 @@
 export type Warehouse = {
   id: number
+  officeId: number
+  officeName: string
   code: string
   name: string
   isActive: boolean

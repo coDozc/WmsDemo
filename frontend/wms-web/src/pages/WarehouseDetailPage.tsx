@@ -128,12 +128,12 @@ function WarehouseDetailPage() {
     <div className="warehouse-detail-header">
       <div className="warehouse-detail-identity">
         <span className="warehouse-detail-icon"><WarehouseIcon size={22} /></span>
-        <div><span className="sku-text">{warehouse?.code ?? '...'}</span><h2>{warehouse?.name ?? 'Depo yükleniyor'}</h2></div>
+        <div><span className="sku-text">{warehouse?.code ?? '...'}</span><h2>{warehouse?.name ?? 'Depo yükleniyor'}</h2>{warehouse && <small className="warehouse-hierarchy">{warehouse.officeName}</small>}</div>
         {warehouse && <span className={`status-badge ${warehouse.isActive ? 'active' : 'inactive'}`}>{warehouse.isActive ? 'Aktif' : 'Pasif'}</span>}
       </div>
       <div className="warehouse-metrics" aria-label="Depo özeti">
         <div><span>Lokasyon</span><strong>{locations.length}</strong><small>{activeLocationCount} aktif</small></div>
-        <div><span>Ürün bakiyesi</span><strong>{inventory.length}</strong><small>{criticalProductCount} kritik</small></div>
+        <div><span>Ürün Kalemi,</span><strong>{inventory.length}</strong><small>{criticalProductCount} kritik</small></div>
         <div><span>Toplam stok</span><strong>{totalQuantity}</strong><small>adet</small></div>
       </div>
     </div>

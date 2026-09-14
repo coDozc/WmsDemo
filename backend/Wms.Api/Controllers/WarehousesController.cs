@@ -10,9 +10,10 @@ public class WarehousesController(IWarehouseService warehouseService)
     : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<WarehouseResponse>>> GetAll()
+    public async Task<ActionResult<IReadOnlyList<WarehouseResponse>>> GetAll(
+        [FromQuery] int? officeId)
     {
-        var warehouses = await warehouseService.GetAllAsync();
+        var warehouses = await warehouseService.GetAllAsync(officeId);
         return Ok(warehouses);
     }
 
@@ -22,25 +23,6 @@ public class WarehousesController(IWarehouseService warehouseService)
         var warehouse = await warehouseService.GetByIdAsync(id);
 
         return warehouse is null ? NotFound() : Ok(warehouse);
-    }
-
-    [HttpPost]
-    public async Task<ActionResult<WarehouseResponse>> Create(
-        CreateWarehouseRequest request)
-    {
-        try
-        {
-            var warehouse = await warehouseService.CreateAsync(request);
-
-            return CreatedAtAction(
-                nameof(GetById),
-                new { id = warehouse.Id },
-                warehouse);
-        }
-        catch (InvalidOperationException exception)
-        {
-            return Conflict(new { message = exception.Message });
-        }
     }
 
     [HttpPut("{id:int}")]

@@ -231,6 +231,123 @@
   grid-template-columns: minmax(260px, 1fr) 40px auto;
 }
 
+.structure-toolbar {
+  display: grid;
+  grid-template-columns: minmax(260px, 1fr) 40px auto auto;
+  align-items: center;
+  gap: 10px;
+}
+
+.offices-toolbar {
+  grid-template-columns: minmax(260px, 1fr) 40px auto;
+}
+
+.office-heading {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 11px;
+}
+
+.office-heading span,
+.office-heading strong {
+  display: block;
+}
+
+.office-heading span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.office-heading strong {
+  margin-top: 1px;
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.structure-summary {
+  display: flex;
+  min-height: 92px;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 16px;
+  padding: 16px 20px;
+  gap: 20px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.structure-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  flex: 0 0 auto;
+  place-items: center;
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-radius: 5px;
+}
+
+.office-summary {
+  justify-content: flex-start;
+  padding: 0;
+  gap: 0;
+}
+
+.office-summary > div {
+  display: grid;
+  min-width: 150px;
+  align-self: stretch;
+  align-content: center;
+  padding: 16px 22px;
+  border-right: 1px solid var(--line);
+}
+
+.office-summary span {
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
+.office-summary strong {
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 1.05rem;
+}
+
+.office-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #515953;
+}
+
+.office-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.office-form-wide {
+  grid-column: 1 / -1;
+}
+
+.warehouse-office-name,
+.warehouse-hierarchy {
+  display: block;
+}
+
+.warehouse-office-name {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.warehouse-hierarchy {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.7rem;
+}
+
 .search-control {
   position: relative;
 }
@@ -776,7 +893,8 @@ textarea.form-control {
   color: var(--accent);
 }
 
-.warehouse-detail-header {
+.warehouse-detail-header,
+.office-detail-header {
   display: flex;
   min-height: 116px;
   align-items: center;
@@ -788,7 +906,8 @@ textarea.form-control {
   border-radius: 6px;
 }
 
-.warehouse-detail-identity {
+.warehouse-detail-identity,
+.office-detail-identity {
   display: flex;
   min-width: 0;
   align-items: center;
@@ -796,6 +915,7 @@ textarea.form-control {
 }
 
 .warehouse-detail-icon,
+.office-detail-icon,
 .detail-section-icon {
   display: grid;
   flex: 0 0 auto;
@@ -805,12 +925,14 @@ textarea.form-control {
   border-radius: 5px;
 }
 
-.warehouse-detail-icon {
+.warehouse-detail-icon,
+.office-detail-icon {
   width: 44px;
   height: 44px;
 }
 
-.warehouse-detail-identity h2 {
+.warehouse-detail-identity h2,
+.office-detail-identity h2 {
   margin: 2px 0 0;
   color: var(--ink);
   font-size: 1.12rem;
@@ -818,18 +940,21 @@ textarea.form-control {
   letter-spacing: 0;
 }
 
-.warehouse-detail-identity .status-badge {
+.warehouse-detail-identity .status-badge,
+.office-detail-identity .status-badge {
   margin-left: 4px;
 }
 
-.warehouse-metrics {
+.warehouse-metrics,
+.office-metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(110px, 1fr));
   align-self: stretch;
   border-left: 1px solid var(--line);
 }
 
-.warehouse-metrics > div {
+.warehouse-metrics > div,
+.office-metrics > div {
   display: grid;
   min-width: 120px;
   align-content: center;
@@ -837,20 +962,44 @@ textarea.form-control {
   border-right: 1px solid var(--line);
 }
 
-.warehouse-metrics > div:last-child {
+.warehouse-metrics > div:last-child,
+.office-metrics > div:last-child {
   border-right: 0;
 }
 
 .warehouse-metrics span,
-.warehouse-metrics small {
+.warehouse-metrics small,
+.office-metrics span,
+.office-metrics small {
   color: var(--muted);
   font-size: 0.7rem;
 }
 
-.warehouse-metrics strong {
+.warehouse-metrics strong,
+.office-metrics strong {
   margin: 2px 0;
   color: var(--ink);
   font-size: 1.12rem;
+}
+
+.office-detail-meta {
+  display: flex;
+  align-items: center;
+  margin-top: 5px;
+  gap: 12px;
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.office-detail-meta > span {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.office-detail-meta > span + span {
+  padding-left: 12px;
+  border-left: 1px solid var(--line);
 }
 
 .detail-section-heading {
@@ -895,8 +1044,35 @@ textarea.form-control {
   min-height: 270px;
 }
 
+.office-warehouses-shell {
+  min-height: 270px;
+}
+
 .warehouse-locations-table {
   min-width: 980px;
+}
+
+.office-warehouses-table {
+  min-width: 840px;
+}
+
+.office-warehouse-link {
+  color: inherit;
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.office-warehouse-link:hover {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.office-warehouse-location {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
 }
 
 .warehouse-locations-table .location-row.is-expanded td {
@@ -1111,18 +1287,21 @@ textarea.form-control {
     padding: 20px 18px 32px;
   }
 
-  .warehouse-detail-header {
+  .warehouse-detail-header,
+  .office-detail-header {
     align-items: stretch;
     flex-direction: column;
   }
 
-  .warehouse-metrics {
+  .warehouse-metrics,
+  .office-metrics {
     min-height: 72px;
     border-top: 1px solid var(--line);
     border-left: 0;
   }
 
-  .warehouse-metrics > div {
+  .warehouse-metrics > div,
+  .office-metrics > div {
     padding-top: 12px;
   }
 
@@ -1149,6 +1328,14 @@ textarea.form-control {
   .orders-toolbar,
   .receipts-toolbar {
     grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  .structure-toolbar {
+    grid-template-columns: minmax(220px, 1fr) 40px auto auto;
+  }
+
+  .offices-toolbar {
+    grid-template-columns: minmax(220px, 1fr) 40px auto;
   }
 
   .inventory-toolbar .search-control,
@@ -1178,6 +1365,34 @@ textarea.form-control {
 
   .page-toolbar {
     grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  .structure-toolbar {
+    grid-template-columns: minmax(0, 1fr) 40px;
+  }
+
+  .structure-toolbar .add-button {
+    grid-column: auto;
+    width: 100%;
+  }
+
+  .structure-summary {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .office-summary {
+    flex-direction: row;
+  }
+
+  .office-summary > div {
+    min-width: 0;
+    width: 33.333%;
+    padding: 14px 12px;
+  }
+
+  .offices-toolbar .add-button {
+    grid-column: 1 / -1;
   }
 
   .search-control {
@@ -1223,8 +1438,13 @@ textarea.form-control {
   }
 
   .order-form-grid,
-  .order-line {
+  .order-line,
+  .office-form-grid {
     grid-template-columns: 1fr;
+  }
+
+  .office-form-wide {
+    grid-column: 1;
   }
 
   .receipt-summary {
@@ -1239,30 +1459,42 @@ textarea.form-control {
     grid-column: 1;
   }
 
-  .warehouse-detail-header {
+  .warehouse-detail-header,
+  .office-detail-header {
     padding: 16px;
   }
 
-  .warehouse-detail-identity {
+  .warehouse-detail-identity,
+  .office-detail-identity {
     align-items: flex-start;
     flex-wrap: wrap;
   }
 
-  .warehouse-detail-identity .status-badge {
+  .warehouse-detail-identity .status-badge,
+  .office-detail-identity .status-badge {
     margin-left: auto;
   }
 
-  .warehouse-metrics {
+  .warehouse-metrics,
+  .office-metrics {
     grid-template-columns: repeat(3, 1fr);
   }
 
-  .warehouse-metrics > div {
+  .warehouse-metrics > div,
+  .office-metrics > div {
     min-width: 0;
     padding: 12px 8px 0;
   }
 
-  .warehouse-metrics strong {
+  .warehouse-metrics strong,
+  .office-metrics strong {
     font-size: 1rem;
+  }
+
+  .office-detail-meta {
+    width: 100%;
+    flex-wrap: wrap;
+    margin-left: 57px;
   }
 
   .detail-section-heading p {

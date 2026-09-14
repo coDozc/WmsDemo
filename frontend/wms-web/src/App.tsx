@@ -4,6 +4,8 @@ import GoodsReceiptsPage from './pages/GoodsReceiptsPage'
 import InventoryPage from './pages/InventoryPage'
 import LocationsPage from './pages/LocationsPage'
 import OrdersPage from './pages/OrdersPage'
+import OfficeDetailPage from './pages/OfficeDetailPage'
+import OfficesPage from './pages/OfficesPage'
 import ProductsPage from './pages/ProductsPage'
 import ShipmentsPage from './pages/ShipmentsPage'
 import StockMovementsPage from './pages/StockMovementsPage'
@@ -18,6 +20,7 @@ function App() {
       <Route element={<AppLayout />}>
         <Route index element={<Navigate to="/products" replace />} />
         <Route path="products" element={<ProductsPage />} />
+        <Route path="offices" element={<OfficesPage />} />
         <Route path="warehouses" element={<WarehousesPage />} />
         <Route path="locations" element={<LocationsPage />} />
         <Route path="orders" element={<OrdersPage />} />
@@ -27,6 +30,7 @@ function App() {
         <Route path="inventory" element={<InventoryPage />} />
         <Route path="stock-movements" element={<StockMovementsPage />} />
         <Route path="warehouses/:warehouseId" element={<WarehouseDetailPage />} />
+        <Route path="offices/:officeId" element={<OfficeDetailPage />} />
         <Route path="*" element={<Navigate to="/products" replace />} />
       </Route>
     </Routes>
