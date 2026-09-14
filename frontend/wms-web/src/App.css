@@ -1241,6 +1241,343 @@ textarea.form-control {
   border-color: var(--accent);
 }
 
+.dashboard-page {
+  display: grid;
+  gap: 18px;
+}
+
+.dashboard-toolbar {
+  display: flex;
+  min-height: 40px;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 0.74rem;
+}
+
+.dashboard-loading {
+  display: flex;
+  min-height: 360px;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.dashboard-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.dashboard-kpi {
+  display: grid;
+  min-height: 108px;
+  grid-template-columns: 42px minmax(0, 1fr);
+  align-items: center;
+  padding: 16px;
+  gap: 13px;
+  color: inherit;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.dashboard-kpi:hover {
+  color: inherit;
+  border-color: #b8c0ba;
+  box-shadow: 0 5px 16px rgba(32, 37, 33, 0.06);
+}
+
+.dashboard-kpi.has-warning {
+  border-color: #e4c775;
+}
+
+.dashboard-kpi-icon,
+.dashboard-section-icon {
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 5px;
+}
+
+.dashboard-kpi-icon {
+  width: 42px;
+  height: 42px;
+}
+
+.dashboard-kpi-icon.stock {
+  color: #176744;
+  background: #e1f1e8;
+}
+
+.dashboard-kpi-icon.products {
+  color: #355f8a;
+  background: #e8eff8;
+}
+
+.dashboard-kpi-icon.critical {
+  color: #8a6208;
+  background: #fff1cf;
+}
+
+.dashboard-kpi-icon.orders {
+  color: #6d4d73;
+  background: #f1e9f3;
+}
+
+.dashboard-kpi span,
+.dashboard-kpi strong,
+.dashboard-kpi small {
+  display: block;
+}
+
+.dashboard-kpi span {
+  color: var(--muted);
+  font-size: 0.73rem;
+  font-weight: 650;
+}
+
+.dashboard-kpi strong {
+  margin-top: 2px;
+  color: var(--ink);
+  font-size: 1.35rem;
+  line-height: 1.15;
+}
+
+.dashboard-kpi small {
+  margin-top: 3px;
+  color: #8a918c;
+  font-size: 0.67rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.8fr) minmax(260px, 0.7fr);
+  align-items: stretch;
+  gap: 14px;
+}
+
+.dashboard-panel {
+  overflow: hidden;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.dashboard-panel-header {
+  display: flex;
+  min-height: 68px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 13px 16px;
+  gap: 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.dashboard-panel-header > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dashboard-panel-header h2,
+.dashboard-panel-header p {
+  margin: 0;
+}
+
+.dashboard-panel-header h2 {
+  color: var(--ink);
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.dashboard-panel-header p {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.69rem;
+}
+
+.dashboard-panel-header > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: #455049;
+  font-size: 0.73rem;
+  font-weight: 650;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard-panel-header > a:hover {
+  color: var(--accent);
+}
+
+.dashboard-section-icon {
+  width: 34px;
+  height: 34px;
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.warehouse-stock-list {
+  min-height: 214px;
+}
+
+.warehouse-stock-row {
+  display: grid;
+  min-height: 68px;
+  grid-template-columns: minmax(150px, 0.9fr) minmax(120px, 1.4fr) 90px 68px;
+  align-items: center;
+  padding: 11px 16px;
+  gap: 16px;
+  color: inherit;
+  border-bottom: 1px solid #edf0ed;
+  text-decoration: none;
+}
+
+.warehouse-stock-row:last-child {
+  border-bottom: 0;
+}
+
+.warehouse-stock-row:hover {
+  color: inherit;
+  background: #f8faf8;
+}
+
+.warehouse-stock-name span,
+.warehouse-stock-name strong,
+.warehouse-stock-values span,
+.warehouse-stock-values strong {
+  display: block;
+}
+
+.warehouse-stock-name strong {
+  margin-top: 2px;
+  overflow: hidden;
+  color: var(--ink);
+  font-size: 0.78rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.warehouse-stock-bar {
+  height: 7px;
+  overflow: hidden;
+  background: #e9edea;
+  border-radius: 4px;
+}
+
+.warehouse-stock-bar span {
+  display: block;
+  min-width: 0;
+  height: 100%;
+  background: var(--accent);
+  border-radius: inherit;
+}
+
+.warehouse-stock-values {
+  text-align: right;
+}
+
+.warehouse-stock-values strong {
+  color: var(--ink);
+  font-size: 0.84rem;
+}
+
+.warehouse-stock-values span,
+.warehouse-critical-count {
+  color: var(--muted);
+  font-size: 0.67rem;
+}
+
+.warehouse-critical-count {
+  text-align: right;
+}
+
+.warehouse-critical-count.has-critical {
+  color: #8a6208;
+  font-weight: 700;
+}
+
+.operation-summary-panel {
+  min-height: 283px;
+}
+
+.operation-summary-row {
+  display: flex;
+  min-height: 66px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  gap: 12px;
+  color: inherit;
+  border-bottom: 1px solid #edf0ed;
+  text-decoration: none;
+}
+
+.operation-summary-row:last-child {
+  border-bottom: 0;
+}
+
+.operation-summary-row:hover {
+  color: inherit;
+  background: #f8faf8;
+}
+
+.operation-summary-row span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #515953;
+  font-size: 0.77rem;
+}
+
+.operation-summary-row strong {
+  color: var(--ink);
+  font-size: 1rem;
+}
+
+.recent-movements-panel {
+  min-height: 310px;
+}
+
+.dashboard-movements-table {
+  min-width: 850px;
+  color: var(--ink);
+  font-size: 0.78rem;
+}
+
+.dashboard-movements-table thead th {
+  padding: 11px 16px;
+  color: #636b65;
+  background: #f7f8f7;
+  border-bottom-color: var(--line);
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.dashboard-movements-table tbody td {
+  height: 57px;
+  padding: 9px 16px;
+  border-color: #edf0ed;
+}
+
+.dashboard-empty {
+  display: flex;
+  min-height: 150px;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 0.77rem;
+}
+
 @media (max-width: 991.98px) {
   .sidebar {
     width: min(286px, calc(100vw - 46px));
@@ -1347,6 +1684,14 @@ textarea.form-control {
   .inventory-toolbar .add-button {
     grid-column: 1 / -1;
     width: 100%;
+  }
+
+  .dashboard-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1503,5 +1848,43 @@ textarea.form-control {
 
   .order-line-remove {
     justify-self: end;
+  }
+
+  .dashboard-toolbar {
+    justify-content: space-between;
+  }
+
+  .warehouse-stock-row {
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    gap: 8px 14px;
+  }
+
+  .warehouse-stock-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
+  }
+
+  .warehouse-stock-values {
+    grid-column: 2;
+    grid-row: 1;
+  }
+
+  .warehouse-critical-count {
+    grid-column: 3;
+    grid-row: 1;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .dashboard-kpis {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-kpi {
+    min-height: 92px;
+  }
+
+  .dashboard-panel-header p {
+    display: none;
   }
 }

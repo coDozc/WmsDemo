@@ -19,24 +19,6 @@ type SidebarProps = {
   onClose: () => void
 }
 
-type NavItem = {
-  label: string
-  icon: typeof Package
-}
-
-const disabledManagementItems: NavItem[] = [
-  { label: 'Dashboard', icon: LayoutDashboard },
-]
-
-function DisabledNavItems({ items }: { items: NavItem[] }) {
-  return items.map(({ label, icon: Icon }) => (
-    <span className="sidebar-link is-disabled" aria-disabled="true" key={label}>
-      <Icon size={18} />
-      <span>{label}</span>
-    </span>
-  ))
-}
-
 function Sidebar({ open, onClose }: SidebarProps) {
   return (
     <aside className={`sidebar ${open ? 'is-open' : ''}`}>
@@ -61,7 +43,16 @@ function Sidebar({ open, onClose }: SidebarProps) {
 
       <nav className="sidebar-nav" aria-label="Ana menü">
         <div className="nav-section-label">Yönetim</div>
-        <DisabledNavItems items={disabledManagementItems.slice(0, 1)} />
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <LayoutDashboard size={18} />
+          <span>Dashboard</span>
+        </NavLink>
         <NavLink
           to="/offices"
           className={({ isActive }) =>

@@ -6,7 +6,9 @@ import Sidebar from './Sidebar'
 function AppLayout() {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const location = useLocation()
-  const pageTitle = location.pathname.startsWith('/offices')
+  const pageTitle = location.pathname.startsWith('/dashboard')
+    ? 'Dashboard'
+    : location.pathname.startsWith('/offices')
     ? 'Ofisler'
     : location.pathname.startsWith('/warehouses')
     ? 'Depolar'

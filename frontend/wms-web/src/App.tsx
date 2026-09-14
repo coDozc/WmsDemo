@@ -1,5 +1,6 @@
 import { Navigate, Route, Routes } from 'react-router-dom'
 import AppLayout from './components/AppLayout'
+import DashboardPage from './pages/DashboardPage'
 import GoodsReceiptsPage from './pages/GoodsReceiptsPage'
 import InventoryPage from './pages/InventoryPage'
 import LocationsPage from './pages/LocationsPage'
@@ -18,7 +19,8 @@ function App() {
   return (
     <Routes>
       <Route element={<AppLayout />}>
-        <Route index element={<Navigate to="/products" replace />} />
+        <Route index element={<Navigate to="/dashboard" replace />} />
+        <Route path="dashboard" element={<DashboardPage />} />
         <Route path="products" element={<ProductsPage />} />
         <Route path="offices" element={<OfficesPage />} />
         <Route path="warehouses" element={<WarehousesPage />} />
