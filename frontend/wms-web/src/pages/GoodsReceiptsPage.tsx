@@ -13,13 +13,16 @@ import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { createGoodsReceipt, getGoodsReceipts } from '../api/goodsReceiptApi'
 import { getLocations } from '../api/locationApi'
 import { getProducts } from '../api/productApi'
+import { getPurchaseOrders } from '../api/purchaseOrderApi'
 import { getWarehouses } from '../api/warehouseApi'
 import type { GoodsReceipt } from '../types/goodsReceipt'
 import type { Location } from '../types/location'
 import type { Product } from '../types/product'
+import type { PurchaseOrder } from '../types/purchaseOrder'
 import type { Warehouse } from '../types/warehouse'
 
 type ReceiptFormState = {
+  purchaseOrderId: string
   supplierName: string
   warehouseId: string
   locationId: string
@@ -27,6 +30,7 @@ type ReceiptFormState = {
 }
 
 const emptyForm: ReceiptFormState = {
+  purchaseOrderId: '',
   supplierName: '',
   warehouseId: '',
   locationId: '',
@@ -37,6 +41,7 @@ function GoodsReceiptsPage() {
   const [receipts, setReceipts] = useState<GoodsReceipt[]>([])
   const [products, setProducts] = useState<Product[]>([])
   const [warehouses, setWarehouses] = useState<Warehouse[]>([])
+  const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([])
   const [receivingLocations, setReceivingLocations] = useState<Location[]>([])
   const [selectedReceipt, setSelectedReceipt] = useState<GoodsReceipt | null>(null)
   const [loading, setLoading] = useState(true)
@@ -67,14 +72,16 @@ function GoodsReceiptsPage() {
       setError(null)
 
       try {
-        const [receiptResult, productResult, warehouseResult] = await Promise.all([
+        const [receiptResult, productResult, warehouseResult, purchaseOrderResult] = await Promise.all([
           getGoodsReceipts(),
           getProducts(),
           getWarehouses(),
+          getPurchaseOrders(),
         ])
         setReceipts(receiptResult)
         setProducts(productResult)
         setWarehouses(warehouseResult)
+        setPurchaseOrders(purchaseOrderResult)
       } catch (requestError) {
         setError(requestError instanceof Error ? requestError.message : 'Mal kabul verileri alınamadı.')
       } finally {
@@ -93,12 +100,25 @@ function GoodsReceiptsPage() {
       receipt.receiptNumber.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
       receipt.supplierName.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
       receipt.warehouseName.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
-      receipt.locationCode.toLocaleLowerCase('tr-TR').includes(normalizedQuery),
+      receipt.locationCode.toLocaleLowerCase('tr-TR').includes(normalizedQuery) ||
+      receipt.purchaseOrderNumber?.toLocaleLowerCase('tr-TR').includes(normalizedQuery),
     )
   }, [receipts, query])
 
   const activeProducts = products.filter((product) => product.isActive)
   const activeWarehouses = warehouses.filter((warehouse) => warehouse.isActive)
+  const eligiblePurchaseOrders = purchaseOrders.filter((purchaseOrder) =>
+    purchaseOrder.isActive &&
+    ['Approved', 'PartiallyReceived'].includes(purchaseOrder.status),
+  )
+  const selectedPurchaseOrder = eligiblePurchaseOrders.find(
+    (purchaseOrder) => String(purchaseOrder.id) === form.purchaseOrderId,
+  )
+  const selectableProducts = selectedPurchaseOrder
+    ? activeProducts.filter((product) => selectedPurchaseOrder.lines.some(
+      (line) => line.productId === product.id && line.remainingQuantity > 0,
+    ))
+    : activeProducts
 
   async function loadReceivingLocations(warehouseId: number) {
     setLocationsLoading(true)
@@ -138,6 +158,51 @@ function GoodsReceiptsPage() {
         locationId: locations[0] ? String(locations[0].id) : '',
       }))
     }
+  }
+
+  async function changePurchaseOrder(value: string) {
+    const purchaseOrder = eligiblePurchaseOrders.find(
+      (item) => String(item.id) === value,
+    )
+
+    if (!purchaseOrder) {
+      const firstWarehouse = activeWarehouses[0]
+      setForm({
+        ...emptyForm,
+        warehouseId: firstWarehouse ? String(firstWarehouse.id) : '',
+        lines: [{ productId: '', quantity: 1 }],
+      })
+      setReceivingLocations([])
+
+      if (firstWarehouse) {
+        const locations = await loadReceivingLocations(firstWarehouse.id)
+        setForm((current) => ({
+          ...current,
+          locationId: locations[0] ? String(locations[0].id) : '',
+        }))
+      }
+      return
+    }
+
+    setForm({
+      purchaseOrderId: value,
+      supplierName: purchaseOrder.supplierName,
+      warehouseId: String(purchaseOrder.warehouseId),
+      locationId: '',
+      lines: purchaseOrder.lines
+        .filter((line) => line.remainingQuantity > 0)
+        .map((line) => ({
+          productId: String(line.productId),
+          quantity: line.remainingQuantity,
+        })),
+    })
+    setReceivingLocations([])
+
+    const locations = await loadReceivingLocations(purchaseOrder.warehouseId)
+    setForm((current) => ({
+      ...current,
+      locationId: locations[0] ? String(locations[0].id) : '',
+    }))
   }
 
   async function changeWarehouse(value: string) {
@@ -188,11 +253,19 @@ function GoodsReceiptsPage() {
         supplierName: form.supplierName,
         warehouseId: Number(form.warehouseId),
         locationId: Number(form.locationId),
+        purchaseOrderId: form.purchaseOrderId
+          ? Number(form.purchaseOrderId)
+          : null,
         lines,
       })
 
       setFormOpen(false)
-      await loadReceipts()
+      const [receiptResult, purchaseOrderResult] = await Promise.all([
+        getGoodsReceipts(),
+        getPurchaseOrders(),
+      ])
+      setReceipts(receiptResult)
+      setPurchaseOrders(purchaseOrderResult)
     } catch (requestError) {
       setFormError(requestError instanceof Error ? requestError.message : 'Mal kabul tamamlanamadı.')
     } finally {
@@ -205,7 +278,7 @@ function GoodsReceiptsPage() {
       <div className="page-toolbar receipts-toolbar">
         <div className="search-control">
           <Search size={18} aria-hidden="true" />
-          <input className="form-control" type="search" placeholder="Belge no, tedarikçi, depo veya lokasyon ara" aria-label="Mal kabul kayıtlarında ara" value={query} onChange={(event) => setQuery(event.target.value)} />
+          <input className="form-control" type="search" placeholder="Belge, satın alma, tedarikçi veya depo ara" aria-label="Mal kabul kayıtlarında ara" value={query} onChange={(event) => setQuery(event.target.value)} />
         </div>
         <button type="button" className="icon-button toolbar-refresh" title="Listeyi yenile" aria-label="Listeyi yenile" onClick={() => void loadReceipts()} disabled={loading}><RefreshCw size={18} className={loading ? 'spin' : ''} /></button>
         <button type="button" className="btn btn-dark add-button" onClick={() => void openCreateForm()} disabled={activeProducts.length === 0 || activeWarehouses.length === 0}><Plus size={18} /> Yeni Mal Kabul</button>
@@ -225,7 +298,7 @@ function GoodsReceiptsPage() {
             <tbody>{!loading && visibleReceipts.map((receipt) => {
               const totalQuantity = receipt.lines.reduce((sum, line) => sum + line.quantity, 0)
               return <tr key={receipt.id}>
-                <td><span className="sku-text">{receipt.receiptNumber}</span></td>
+                <td><span className="sku-text">{receipt.receiptNumber}</span><span className="cell-subtext">{receipt.purchaseOrderNumber ?? 'Siparişsiz kabul'}</span></td>
                 <td className="product-name">{receipt.supplierName}</td>
                 <td>{receipt.warehouseName}</td>
                 <td><span className="type-badge receiving">{receipt.locationCode}</span></td>
@@ -247,14 +320,15 @@ function GoodsReceiptsPage() {
             <div className="dialog-body">
               {formError && <div className="alert alert-danger py-2">{formError}</div>}
               <div className="order-form-grid">
-                <div><label className="form-label" htmlFor="receipt-supplier">Tedarikçi</label><input id="receipt-supplier" className="form-control" maxLength={150} required value={form.supplierName} onChange={(event) => setForm({ ...form, supplierName: event.target.value })} /></div>
-                <div><label className="form-label" htmlFor="receipt-warehouse">Depo</label><select id="receipt-warehouse" className="form-select" required value={form.warehouseId} onChange={(event) => void changeWarehouse(event.target.value)}><option value="">Depo seçin</option>{activeWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.code} · {warehouse.name}</option>)}</select></div>
+                <div className="order-customer-field"><label className="form-label" htmlFor="receipt-purchase-order">Satın alma siparişi</label><select id="receipt-purchase-order" className="form-select" value={form.purchaseOrderId} onChange={(event) => void changePurchaseOrder(event.target.value)}><option value="">Siparişsiz mal kabul</option>{eligiblePurchaseOrders.map((purchaseOrder) => <option key={purchaseOrder.id} value={purchaseOrder.id}>{purchaseOrder.orderNumber} · {purchaseOrder.supplierName}</option>)}</select></div>
+                <div><label className="form-label" htmlFor="receipt-supplier">Tedarikçi</label><input id="receipt-supplier" className="form-control" maxLength={150} required disabled={Boolean(selectedPurchaseOrder)} value={form.supplierName} onChange={(event) => setForm({ ...form, supplierName: event.target.value })} /></div>
+                <div><label className="form-label" htmlFor="receipt-warehouse">Depo</label><select id="receipt-warehouse" className="form-select" required disabled={Boolean(selectedPurchaseOrder)} value={form.warehouseId} onChange={(event) => void changeWarehouse(event.target.value)}><option value="">Depo seçin</option>{activeWarehouses.map((warehouse) => <option key={warehouse.id} value={warehouse.id}>{warehouse.code} · {warehouse.name}</option>)}</select></div>
                 <div><label className="form-label" htmlFor="receipt-location">Mal kabul lokasyonu</label><select id="receipt-location" className="form-select" required disabled={!form.warehouseId || locationsLoading} value={form.locationId} onChange={(event) => setForm({ ...form, locationId: event.target.value })}><option value="">{locationsLoading ? 'Yükleniyor...' : 'Receiving lokasyonu seçin'}</option>{receivingLocations.map((location) => <option key={location.id} value={location.id}>{location.code}{location.name ? ` · ${location.name}` : ''}</option>)}</select></div>
               </div>
-              <div className="order-lines-header"><strong>Kabul Edilen Ürünler</strong><button type="button" className="btn btn-sm btn-outline-secondary" onClick={() => setForm({ ...form, lines: [...form.lines, { productId: '', quantity: 1 }] })}><Plus size={16} /> Satır Ekle</button></div>
+              <div className="order-lines-header"><strong>Kabul Edilen Ürünler</strong><button type="button" className="btn btn-sm btn-outline-secondary" disabled={Boolean(selectedPurchaseOrder) && form.lines.length >= selectableProducts.length} onClick={() => setForm({ ...form, lines: [...form.lines, { productId: '', quantity: 1 }] })}><Plus size={16} /> Satır Ekle</button></div>
               <div className="order-lines">{form.lines.map((line, index) => <div className="order-line" key={index}>
-                <div><label className="form-label" htmlFor={`receipt-product-${index}`}>Ürün</label><select id={`receipt-product-${index}`} className="form-select" required value={line.productId} onChange={(event) => updateLine(index, { productId: event.target.value })}><option value="">Ürün seçin</option>{activeProducts.map((product) => <option key={product.id} value={product.id} disabled={form.lines.some((otherLine, otherIndex) => otherIndex !== index && otherLine.productId === String(product.id))}>{product.sku} · {product.name}</option>)}</select></div>
-                <div><label className="form-label" htmlFor={`receipt-quantity-${index}`}>Miktar</label><input id={`receipt-quantity-${index}`} className="form-control" type="number" min={1} step={1} required value={line.quantity} onChange={(event) => updateLine(index, { quantity: Number(event.target.value) })} /></div>
+                <div><label className="form-label" htmlFor={`receipt-product-${index}`}>Ürün</label><select id={`receipt-product-${index}`} className="form-select" required value={line.productId} onChange={(event) => updateLine(index, { productId: event.target.value })}><option value="">Ürün seçin</option>{selectableProducts.map((product) => <option key={product.id} value={product.id} disabled={form.lines.some((otherLine, otherIndex) => otherIndex !== index && otherLine.productId === String(product.id))}>{product.sku} · {product.name}</option>)}</select></div>
+                <div><label className="form-label" htmlFor={`receipt-quantity-${index}`}>Miktar</label><input id={`receipt-quantity-${index}`} className="form-control" type="number" min={1} max={selectedPurchaseOrder?.lines.find((orderLine) => orderLine.productId === Number(line.productId))?.remainingQuantity} step={1} required value={line.quantity} onChange={(event) => updateLine(index, { quantity: Number(event.target.value) })} /></div>
                 <button type="button" className="icon-button danger order-line-remove" title="Satırı kaldır" aria-label={`${index + 1}. satırı kaldır`} disabled={form.lines.length === 1} onClick={() => removeLine(index)}><Trash2 size={17} /></button>
               </div>)}</div>
             </div>
@@ -267,7 +341,7 @@ function GoodsReceiptsPage() {
         <div className="product-dialog receipt-detail-dialog" role="dialog" aria-modal="true" aria-labelledby="receipt-detail-title">
           <div className="dialog-header"><div><span className="dialog-kicker">Mal kabul detayı</span><h2 id="receipt-detail-title">{selectedReceipt.receiptNumber}</h2></div><button type="button" className="icon-button" title="Detayı kapat" aria-label="Detayı kapat" onClick={() => setSelectedReceipt(null)}><X size={20} /></button></div>
           <div className="dialog-body">
-            <dl className="receipt-summary"><div><dt>Tedarikçi</dt><dd>{selectedReceipt.supplierName}</dd></div><div><dt>Depo / Lokasyon</dt><dd>{selectedReceipt.warehouseName} · {selectedReceipt.locationCode}</dd></div></dl>
+            <dl className="receipt-summary"><div><dt>Tedarikçi</dt><dd>{selectedReceipt.supplierName}</dd></div><div><dt>Depo / Lokasyon</dt><dd>{selectedReceipt.warehouseName} · {selectedReceipt.locationCode}</dd></div><div><dt>Satın alma siparişi</dt><dd>{selectedReceipt.purchaseOrderNumber ?? 'Siparişsiz kabul'}</dd></div></dl>
             <div className="receipt-detail-lines">{selectedReceipt.lines.map((line) => <div key={line.id}><span><strong>{line.productName}</strong><small>{line.productSku}</small></span><strong>{line.quantity} adet</strong></div>)}</div>
           </div>
           <div className="dialog-footer"><button type="button" className="btn btn-dark" onClick={() => setSelectedReceipt(null)}>Kapat</button></div>

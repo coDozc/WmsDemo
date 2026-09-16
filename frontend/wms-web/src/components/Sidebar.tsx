@@ -8,6 +8,7 @@ import {
   Network,
   Package,
   Send,
+  ShoppingCart,
   Truck,
   Warehouse,
   X,
@@ -106,6 +107,16 @@ function Sidebar({ open, onClose }: SidebarProps) {
 
         <div className="nav-section-label nav-section-spaced">Operasyonlar</div>
         <NavLink
+          to="/purchase-orders"
+          className={({ isActive }) =>
+            `sidebar-link ${isActive ? 'is-active' : ''}`
+          }
+          onClick={onClose}
+        >
+          <ShoppingCart size={18} />
+          <span>Satın Alma</span>
+        </NavLink>
+        <NavLink
           to="/goods-receipts"
           className={({ isActive }) =>
             `sidebar-link ${isActive ? 'is-active' : ''}`
@@ -123,7 +134,7 @@ function Sidebar({ open, onClose }: SidebarProps) {
           onClick={onClose}
         >
           <FileText size={18} />
-          <span>Siparişler</span>
+          <span>Müşteri Siparişleri</span>
         </NavLink>
         <NavLink
           to="/stock-transfers"

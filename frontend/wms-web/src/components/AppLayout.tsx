@@ -12,6 +12,8 @@ function AppLayout() {
     ? 'Ofisler'
     : location.pathname.startsWith('/warehouses')
     ? 'Depolar'
+    : location.pathname.startsWith('/purchase-orders')
+      ? 'Satın Alma Siparişleri'
     : location.pathname.startsWith('/goods-receipts')
       ? 'Mal Kabul'
     : location.pathname.startsWith('/stock-transfers')
@@ -19,7 +21,7 @@ function AppLayout() {
     : location.pathname.startsWith('/shipments')
       ? 'Sevkiyatlar'
     : location.pathname.startsWith('/orders')
-      ? 'Siparişler'
+      ? 'Müşteri Siparişleri'
       : location.pathname.startsWith('/locations')
       ? 'Lokasyonlar'
       : location.pathname.startsWith('/stock-movements')

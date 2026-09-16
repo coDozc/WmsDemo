@@ -20,6 +20,8 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     public DbSet<StockTransferLine> StockTransferLines => Set<StockTransferLine>();
     public DbSet<Shipment> Shipments => Set<Shipment>();
     public DbSet<ShipmentLine> ShipmentLines => Set<ShipmentLine>();
+    public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
+    public DbSet<PurchaseOrderLine> PurchaseOrderLines => Set<PurchaseOrderLine>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -254,6 +256,11 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
                 .HasForeignKey(receipt => receipt.LocationId)
                 .OnDelete(DeleteBehavior.Restrict);
 
+            entity.HasOne(receipt => receipt.PurchaseOrder)
+                .WithMany()
+                .HasForeignKey(receipt => receipt.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
             entity.HasMany(receipt => receipt.Lines)
                 .WithOne(line => line.GoodsReceipt)
                 .HasForeignKey(line => line.GoodsReceiptId)
@@ -361,6 +368,60 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
             entity.HasKey(line => line.Id);
 
             entity.HasIndex(line => new { line.ShipmentId, line.ProductId })
+                .IsUnique();
+
+            entity.HasOne(line => line.Product)
+                .WithMany()
+                .HasForeignKey(line => line.ProductId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<PurchaseOrder>(entity =>
+        {
+            entity.HasKey(po => po.Id);
+
+            entity.Property(po => po.OrderNumber)
+                .HasMaxLength(50)
+                .IsRequired();
+
+            entity.Property(po => po.SupplierName)
+                .HasMaxLength(150)
+                .IsRequired();
+
+            entity.Property(po => po.Status)
+                .HasConversion<string>()
+                .HasMaxLength(20)
+                .IsRequired();
+
+            entity.HasIndex(po => po.OrderNumber)
+                .IsUnique();
+
+            entity.HasOne(po => po.Warehouse)
+                .WithMany()
+                .HasForeignKey(po => po.WarehouseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasMany(po => po.Lines)
+                .WithOne(line => line.PurchaseOrder)
+                .HasForeignKey(line => line.PurchaseOrderId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        modelBuilder.Entity<PurchaseOrderLine>(entity =>
+        {
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_PurchaseOrderLines_OrderedQuantity",
+                    "[OrderedQuantity] > 0");
+                table.HasCheckConstraint(
+                    "CK_PurchaseOrderLines_ReceivedQuantity",
+                    "[ReceivedQuantity] >= 0 AND [ReceivedQuantity] <= [OrderedQuantity]");
+            });
+
+            entity.HasKey(line => line.Id);
+
+            entity.HasIndex(line => new { line.PurchaseOrderId, line.ProductId })
                 .IsUnique();
 
             entity.HasOne(line => line.Product)

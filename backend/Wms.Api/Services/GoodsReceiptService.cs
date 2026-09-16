@@ -76,6 +76,13 @@ public class GoodsReceiptService(WmsDbContext dbContext)
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 
+        var purchaseOrder = await GetPurchaseOrderAsync(request);
+
+        if (purchaseOrder is not null)
+        {
+            supplierName = purchaseOrder.SupplierName;
+        }
+
         var balances = await dbContext.InventoryBalances
             .Where(balance =>
                 balance.LocationId == request.LocationId &&
@@ -88,6 +95,7 @@ public class GoodsReceiptService(WmsDbContext dbContext)
             SupplierName = supplierName,
             WarehouseId = request.WarehouseId,
             LocationId = request.LocationId,
+            PurchaseOrderId = request.PurchaseOrderId,
             Lines = request.Lines.Select(line => new GoodsReceiptLine
             {
                 ProductId = line.ProductId,
@@ -133,6 +141,11 @@ public class GoodsReceiptService(WmsDbContext dbContext)
             });
         }
 
+        if (purchaseOrder is not null)
+        {
+            UpdatePurchaseOrder(purchaseOrder, request.Lines);
+        }
+
         await dbContext.SaveChangesAsync();
         await transaction.CommitAsync();
 
@@ -147,8 +160,99 @@ public class GoodsReceiptService(WmsDbContext dbContext)
             .AsNoTracking()
             .Include(receipt => receipt.Warehouse)
             .Include(receipt => receipt.Location)
+            .Include(receipt => receipt.PurchaseOrder)
             .Include(receipt => receipt.Lines)
                 .ThenInclude(line => line.Product);
+    }
+
+    private async Task<PurchaseOrder?> GetPurchaseOrderAsync(
+        CreateGoodsReceiptRequest request)
+    {
+        if (!request.PurchaseOrderId.HasValue)
+        {
+            return null;
+        }
+
+        var purchaseOrder = await dbContext.PurchaseOrders
+            .Include(item => item.Lines)
+            .FirstOrDefaultAsync(
+                item => item.Id == request.PurchaseOrderId.Value);
+
+        if (purchaseOrder is null)
+        {
+            throw new KeyNotFoundException(
+                "Satın alma siparişi bulunamadı.");
+        }
+
+        if (purchaseOrder.Status is not (
+            PurchaseOrderStatus.Approved or
+            PurchaseOrderStatus.PartiallyReceived))
+        {
+            throw new InvalidOperationException(
+                "Yalnızca onaylanmış veya kısmen teslim alınmış siparişler kabul edilebilir.");
+        }
+
+        if (purchaseOrder.WarehouseId != request.WarehouseId)
+        {
+            throw new InvalidOperationException(
+                "Mal kabul deposu satın alma siparişinin deposuyla aynı olmalıdır.");
+        }
+
+        var orderLines = purchaseOrder.Lines
+            .ToDictionary(line => line.ProductId);
+
+        foreach (var receiptLine in request.Lines)
+        {
+            if (!orderLines.TryGetValue(receiptLine.ProductId, out var orderLine))
+            {
+                throw new InvalidOperationException(
+                    "Mal kabul ürünlerinden biri satın alma siparişinde bulunmuyor.");
+            }
+
+            var remainingQuantity =
+                orderLine.OrderedQuantity - orderLine.ReceivedQuantity;
+
+            if (receiptLine.Quantity > remainingQuantity)
+            {
+                throw new InvalidOperationException(
+                    $"Ürün için kalan kabul miktarı {remainingQuantity} adettir.");
+            }
+        }
+
+        return purchaseOrder;
+    }
+
+    private static void UpdatePurchaseOrder(
+        PurchaseOrder purchaseOrder,
+        IReadOnlyCollection<GoodsReceiptLineRequest> receiptLines)
+    {
+        var receivedQuantities = receiptLines.ToDictionary(
+            line => line.ProductId,
+            line => line.Quantity);
+
+        foreach (var orderLine in purchaseOrder.Lines)
+        {
+            if (receivedQuantities.TryGetValue(
+                orderLine.ProductId,
+                out var receivedQuantity))
+            {
+                orderLine.ReceivedQuantity += receivedQuantity;
+            }
+        }
+
+        var completed = purchaseOrder.Lines.All(
+            line => line.ReceivedQuantity == line.OrderedQuantity);
+
+        if (completed)
+        {
+            purchaseOrder.Status = PurchaseOrderStatus.Completed;
+            purchaseOrder.ReceivedAtUtc = DateTime.UtcNow;
+            purchaseOrder.IsActive = false;
+        }
+        else
+        {
+            purchaseOrder.Status = PurchaseOrderStatus.PartiallyReceived;
+        }
     }
 
     private static GoodsReceiptResponse MapToResponse(GoodsReceipt receipt)
@@ -163,6 +267,8 @@ public class GoodsReceiptService(WmsDbContext dbContext)
             LocationId = receipt.LocationId,
             LocationCode = receipt.Location.Code,
             ReceivedAtUtc = receipt.ReceivedAtUtc,
+            PurchaseOrderId = receipt.PurchaseOrderId,
+            PurchaseOrderNumber = receipt.PurchaseOrder?.OrderNumber,
             Lines = receipt.Lines
                 .OrderBy(line => line.Product.Name)
                 .Select(line => new GoodsReceiptLineResponse

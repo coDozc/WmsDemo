@@ -8,6 +8,7 @@ import OrdersPage from './pages/OrdersPage'
 import OfficeDetailPage from './pages/OfficeDetailPage'
 import OfficesPage from './pages/OfficesPage'
 import ProductsPage from './pages/ProductsPage'
+import PurchaseOrdersPage from './pages/PurchaseOrdersPage'
 import ShipmentsPage from './pages/ShipmentsPage'
 import StockMovementsPage from './pages/StockMovementsPage'
 import StockTransfersPage from './pages/StockTransfersPage'
@@ -26,6 +27,7 @@ function App() {
         <Route path="warehouses" element={<WarehousesPage />} />
         <Route path="locations" element={<LocationsPage />} />
         <Route path="orders" element={<OrdersPage />} />
+        <Route path="purchase-orders" element={<PurchaseOrdersPage />} />
         <Route path="goods-receipts" element={<GoodsReceiptsPage />} />
         <Route path="stock-transfers" element={<StockTransfersPage />} />
         <Route path="shipments" element={<ShipmentsPage />} />

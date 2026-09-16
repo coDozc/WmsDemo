@@ -7,6 +7,8 @@ public class GoodsReceipt
     public required string SupplierName { get; set; }
     public int WarehouseId { get; set; }
     public int LocationId { get; set; }
+    public int? PurchaseOrderId { get; set; }
+    public PurchaseOrder? PurchaseOrder { get; set; }
     public DateTime ReceivedAtUtc { get; set; } = DateTime.UtcNow;
     public Warehouse Warehouse { get; set; } = null!;
     public Location Location { get; set; } = null!;

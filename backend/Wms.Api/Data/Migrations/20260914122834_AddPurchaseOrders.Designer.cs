@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Wms.Api.Data;
 
@@ -11,9 +12,11 @@ using Wms.Api.Data;
 namespace Wms.Api.Data.Migrations
 {
     [DbContext(typeof(WmsDbContext))]
-    partial class WmsDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260914122834_AddPurchaseOrders")]
+    partial class AddPurchaseOrders
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -31,9 +34,6 @@ namespace Wms.Api.Data.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<int>("LocationId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("PurchaseOrderId")
                         .HasColumnType("int");
 
                     b.Property<string>("ReceiptNumber")
@@ -55,8 +55,6 @@ namespace Wms.Api.Data.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("LocationId");
-
-                    b.HasIndex("PurchaseOrderId");
 
                     b.HasIndex("ReceiptNumber")
                         .IsUnique();
@@ -639,11 +637,6 @@ namespace Wms.Api.Data.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Wms.Api.Domain.Entities.PurchaseOrder", "PurchaseOrder")
-                        .WithMany()
-                        .HasForeignKey("PurchaseOrderId")
-                        .OnDelete(DeleteBehavior.Restrict);
-
                     b.HasOne("Wms.Api.Domain.Entities.Warehouse", "Warehouse")
                         .WithMany()
                         .HasForeignKey("WarehouseId")
@@ -651,8 +644,6 @@ namespace Wms.Api.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Location");
-
-                    b.Navigation("PurchaseOrder");
 
                     b.Navigation("Warehouse");
                 });

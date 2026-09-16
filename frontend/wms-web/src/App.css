@@ -450,6 +450,12 @@ textarea.form-control {
   border-color: #f0cccc;
 }
 
+.icon-button.success:hover:not(:disabled) {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: #b9ddcc;
+}
+
 .toolbar-refresh {
   width: 40px;
   height: 40px;
@@ -667,6 +673,10 @@ textarea.form-control {
   min-width: 1050px;
 }
 
+.purchase-orders-table {
+  min-width: 1180px;
+}
+
 .receipts-table {
   min-width: 1080px;
 }
@@ -692,6 +702,16 @@ textarea.form-control {
 .order-status.picking {
   color: #185f78;
   background: #e5f3f7;
+}
+
+.order-status.approved {
+  color: #185f78;
+  background: #e5f3f7;
+}
+
+.order-status.partiallyreceived {
+  color: #795a13;
+  background: #fff4d9;
 }
 
 .order-status.shipping {

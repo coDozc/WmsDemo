@@ -11,6 +11,8 @@ export type GoodsReceipt = {
   receiptNumber: string
   supplierName: string
   warehouseId: number
+  purchaseOrderId: number | null
+  purchaseOrderNumber: string | null
   warehouseName: string
   locationId: number
   locationCode: string
@@ -22,5 +24,6 @@ export type CreateGoodsReceiptRequest = {
   supplierName: string
   warehouseId: number
   locationId: number
+  purchaseOrderId: number | null
   lines: Array<{ productId: number; quantity: number }>
 }

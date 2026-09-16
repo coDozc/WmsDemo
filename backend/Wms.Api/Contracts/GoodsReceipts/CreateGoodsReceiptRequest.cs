@@ -14,6 +14,9 @@ public class CreateGoodsReceiptRequest
     [Range(1, int.MaxValue)]
     public int LocationId { get; set; }
 
+    [Range(1, int.MaxValue)]
+    public int? PurchaseOrderId { get; set; }
+
     [Required]
     [MinLength(1)]
     public List<GoodsReceiptLineRequest> Lines { get; set; } = [];
