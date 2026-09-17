@@ -6,7 +6,9 @@ using Wms.Api.Domain.Enums;
 
 namespace Wms.Api.Services;
 
-public class OrderService(WmsDbContext dbContext) : IOrderService
+public class OrderService(
+    WmsDbContext dbContext,
+    IDocumentNumberService documentNumberService) : IOrderService
 {
     public async Task<IReadOnlyList<OrderResponse>> GetAllAsync()
     {
@@ -35,9 +37,9 @@ public class OrderService(WmsDbContext dbContext) : IOrderService
 
     public async Task<OrderResponse> CreateAsync(CreateOrderRequest request)
     {
-        var orderNumber = DocumentNumberGenerator.Create("SIP");
-
         await ValidateOrderDataAsync(request.WarehouseId, request.Lines);
+
+        var orderNumber = await documentNumberService.CreateAsync("SIP");
 
         var order = new Order
         {

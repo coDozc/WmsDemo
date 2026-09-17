@@ -6,7 +6,9 @@ using Wms.Api.Domain.Enums;
 
 namespace Wms.Api.Services;
 
-public class StockTransferService(WmsDbContext dbContext)
+public class StockTransferService(
+    WmsDbContext dbContext,
+    IDocumentNumberService documentNumberService)
     : IStockTransferService
 {
     public async Task<IReadOnlyList<StockTransferResponse>> GetAllAsync()
@@ -29,8 +31,6 @@ public class StockTransferService(WmsDbContext dbContext)
     public async Task<StockTransferResponse> CreateAsync(
         CreateStockTransferRequest request)
     {
-        var transferNumber = DocumentNumberGenerator.Create("TRF");
-
         if (request.FromLocationId == request.ToLocationId)
         {
             throw new InvalidOperationException(
@@ -79,6 +79,8 @@ public class StockTransferService(WmsDbContext dbContext)
             throw new KeyNotFoundException(
                 "Ürünlerden biri bulunamadı veya pasif durumda.");
         }
+
+        var transferNumber = await documentNumberService.CreateAsync("TRF");
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 

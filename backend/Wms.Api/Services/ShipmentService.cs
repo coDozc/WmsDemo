@@ -6,7 +6,9 @@ using Wms.Api.Domain.Enums;
 
 namespace Wms.Api.Services;
 
-public class ShipmentService(WmsDbContext dbContext) : IShipmentService
+public class ShipmentService(
+    WmsDbContext dbContext,
+    IDocumentNumberService documentNumberService) : IShipmentService
 {
     public async Task<IReadOnlyList<ShipmentResponse>> GetAllAsync()
     {
@@ -27,7 +29,6 @@ public class ShipmentService(WmsDbContext dbContext) : IShipmentService
 
     public async Task<ShipmentResponse> CreateAsync(CreateShipmentRequest request)
     {
-        var shipmentNumber = DocumentNumberGenerator.Create("SVK");
         var carrierName = request.CarrierName.Trim();
 
         var order = await dbContext.Orders
@@ -71,6 +72,8 @@ public class ShipmentService(WmsDbContext dbContext) : IShipmentService
         }
 
         var productIds = order.Lines.Select(line => line.ProductId).ToList();
+
+        var shipmentNumber = await documentNumberService.CreateAsync("SVK");
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 

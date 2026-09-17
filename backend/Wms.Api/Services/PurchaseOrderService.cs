@@ -6,7 +6,9 @@ using Wms.Api.Domain.Enums;
 
 namespace Wms.Api.Services;
 
-public class PurchaseOrderService(WmsDbContext dbContext) : IPurchaseOrderService
+public class PurchaseOrderService(
+    WmsDbContext dbContext,
+    IDocumentNumberService documentNumberService) : IPurchaseOrderService
 {
     public async Task<IReadOnlyList<PurchaseOrderResponse>> GetAllAsync()
     {
@@ -40,7 +42,7 @@ public class PurchaseOrderService(WmsDbContext dbContext) : IPurchaseOrderServic
 
         var purchaseOrder = new PurchaseOrder
         {
-            OrderNumber = DocumentNumberGenerator.Create("SAS"),
+            OrderNumber = await documentNumberService.CreateAsync("SAS"),
             WarehouseId = request.WarehouseId,
             SupplierName = request.SupplierName.Trim(),
             Status = PurchaseOrderStatus.Draft,

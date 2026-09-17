@@ -6,7 +6,9 @@ using Wms.Api.Domain.Enums;
 
 namespace Wms.Api.Services;
 
-public class GoodsReceiptService(WmsDbContext dbContext)
+public class GoodsReceiptService(
+    WmsDbContext dbContext,
+    IDocumentNumberService documentNumberService)
     : IGoodsReceiptService
 {
     public async Task<IReadOnlyList<GoodsReceiptResponse>> GetAllAsync()
@@ -29,7 +31,6 @@ public class GoodsReceiptService(WmsDbContext dbContext)
     public async Task<GoodsReceiptResponse> CreateAsync(
         CreateGoodsReceiptRequest request)
     {
-        var receiptNumber = DocumentNumberGenerator.Create("MK");
         var supplierName = request.SupplierName.Trim();
 
         var location = await dbContext.Locations
@@ -73,6 +74,8 @@ public class GoodsReceiptService(WmsDbContext dbContext)
             throw new KeyNotFoundException(
                 "Ürünlerden biri bulunamadı veya pasif durumda.");
         }
+
+        var receiptNumber = await documentNumberService.CreateAsync("MK");
 
         await using var transaction = await dbContext.Database.BeginTransactionAsync();
 

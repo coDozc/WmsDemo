@@ -22,6 +22,7 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
     public DbSet<ShipmentLine> ShipmentLines => Set<ShipmentLine>();
     public DbSet<PurchaseOrder> PurchaseOrders => Set<PurchaseOrder>();
     public DbSet<PurchaseOrderLine> PurchaseOrderLines => Set<PurchaseOrderLine>();
+    public DbSet<DocumentCounter> DocumentCounters => Set<DocumentCounter>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -52,6 +53,29 @@ public class WmsDbContext(DbContextOptions<WmsDbContext> options)
             entity.HasIndex(product => product.Barcode)
                 .IsUnique()
                 .HasFilter("[Barcode] IS NOT NULL");
+        });
+
+        modelBuilder.Entity<DocumentCounter>(entity =>
+        {
+            entity.ToTable(table =>
+            {
+                table.HasCheckConstraint(
+                    "CK_DocumentCounters_Year",
+                    "[Year] >= 2000 AND [Year] <= 9999");
+                table.HasCheckConstraint(
+                    "CK_DocumentCounters_LastNumber",
+                    "[LastNumber] > 0");
+            });
+
+            entity.HasKey(counter => counter.Id);
+
+            entity.Property(counter => counter.DocumentType)
+                .HasMaxLength(10)
+                .IsRequired();
+
+            entity.HasIndex(counter => new
+                { counter.DocumentType, counter.Year })
+                .IsUnique();
         });
 
         modelBuilder.Entity<Office>(entity =>
