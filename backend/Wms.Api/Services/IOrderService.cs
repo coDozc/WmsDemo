@@ -8,5 +8,8 @@ public interface IOrderService
     Task<OrderResponse?> GetByIdAsync(int id);
     Task<OrderResponse> CreateAsync(CreateOrderRequest request);
     Task<bool> UpdateAsync(int id, UpdateOrderRequest request);
+    Task<bool> MarkReadyToPickAsync(int id);
+    Task<bool> StartPickingAsync(int id);
+    Task<bool> CompletePickingAsync(int id);
     Task<bool> CancelAsync(int id);
 }

@@ -90,6 +90,33 @@ public class OrderService(
         return true;
     }
 
+    public Task<bool> MarkReadyToPickAsync(int id)
+    {
+        return ChangeStatusAsync(
+            id,
+            OrderStatus.Draft,
+            OrderStatus.ReadyToPick,
+            "Yalnızca taslak siparişler toplamaya hazırlanabilir.");
+    }
+
+    public Task<bool> StartPickingAsync(int id)
+    {
+        return ChangeStatusAsync(
+            id,
+            OrderStatus.ReadyToPick,
+            OrderStatus.Picking,
+            "Yalnızca toplamaya hazır siparişlerde toplama başlatılabilir.");
+    }
+
+    public Task<bool> CompletePickingAsync(int id)
+    {
+        return ChangeStatusAsync(
+            id,
+            OrderStatus.Picking,
+            OrderStatus.Shipping,
+            "Yalnızca toplama aşamasındaki siparişlerin toplaması tamamlanabilir.");
+    }
+
     public async Task<bool> CancelAsync(int id)
     {
         var order = await dbContext.Orders.FindAsync(id);
@@ -173,6 +200,41 @@ public class OrderService(
             ProductId = request.ProductId,
             Quantity = request.Quantity
         }).ToList();
+    }
+
+    private async Task<bool> ChangeStatusAsync(
+        int id,
+        OrderStatus expectedStatus,
+        OrderStatus nextStatus,
+        string invalidStatusMessage)
+    {
+        var order = await dbContext.Orders.FindAsync(id);
+
+        if (order is null)
+        {
+            return false;
+        }
+
+        if (!order.IsActive)
+        {
+            throw new InvalidOperationException(
+                "Pasif siparişte durum değişikliği yapılamaz.");
+        }
+
+        if (order.Status == nextStatus)
+        {
+            return true;
+        }
+
+        if (order.Status != expectedStatus)
+        {
+            throw new InvalidOperationException(invalidStatusMessage);
+        }
+
+        order.Status = nextStatus;
+        await dbContext.SaveChangesAsync();
+
+        return true;
     }
 
     private static OrderResponse MapToResponse(Order order)

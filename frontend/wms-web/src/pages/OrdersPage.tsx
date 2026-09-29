@@ -1,8 +1,11 @@
 import {
   Ban,
+  Check,
   CircleAlert,
   ClipboardList,
+  PackageCheck,
   Pencil,
+  Play,
   Plus,
   RefreshCw,
   Search,
@@ -10,7 +13,15 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useMemo, useState, type FormEvent } from 'react'
-import { cancelOrder, createOrder, getOrders, updateOrder } from '../api/orderApi'
+import {
+  cancelOrder,
+  completeOrderPicking,
+  createOrder,
+  getOrders,
+  markOrderReadyToPick,
+  startOrderPicking,
+  updateOrder,
+} from '../api/orderApi'
 import { getProducts } from '../api/productApi'
 import { getWarehouses } from '../api/warehouseApi'
 import type { Order, OrderLineRequest, OrderStatus } from '../types/order'
@@ -29,7 +40,7 @@ const statusLabels: Record<OrderStatus, string> = {
   Draft: 'Taslak',
   ReadyToPick: 'Toplamaya Hazır',
   Picking: 'Toplanıyor',
-  Shipping: 'Sevkiyatta',
+  Shipping: 'Sevkiyata Hazır',
   Completed: 'Tamamlandı',
   Cancelled: 'İptal',
 }
@@ -52,6 +63,7 @@ function OrdersPage() {
   const [editingOrder, setEditingOrder] = useState<Order | null>(null)
   const [form, setForm] = useState<OrderFormState>(emptyForm)
   const [saving, setSaving] = useState(false)
+  const [processingOrderId, setProcessingOrderId] = useState<number | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
 
   async function loadOrders() {
@@ -193,6 +205,24 @@ function OrdersPage() {
     }
   }
 
+  async function handleStatusChange(
+    order: Order,
+    transition: (id: number) => Promise<void>,
+    fallbackMessage: string,
+  ) {
+    setProcessingOrderId(order.id)
+    setError(null)
+
+    try {
+      await transition(order.id)
+      await loadOrders()
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : fallbackMessage)
+    } finally {
+      setProcessingOrderId(null)
+    }
+  }
+
   return (
     <section>
       <div className="page-toolbar orders-toolbar">
@@ -229,6 +259,7 @@ function OrdersPage() {
                 const totalQuantity = order.lines.reduce((sum, line) => sum + line.quantity, 0)
                 const canEdit = order.status === 'Draft'
                 const canCancel = !['Cancelled', 'Shipping', 'Completed'].includes(order.status)
+                const isProcessing = processingOrderId === order.id
 
                 return (
                   <tr key={order.id}>
@@ -239,8 +270,11 @@ function OrdersPage() {
                     <td><span className={`order-status ${order.status.toLowerCase()}`}>{statusLabels[order.status]}</span></td>
                     <td>{new Date(order.createdAtUtc).toLocaleString('tr-TR', { dateStyle: 'short', timeStyle: 'short' })}</td>
                     <td><div className="row-actions">
-                      <button type="button" className="icon-button" title="Siparişi düzenle" aria-label={`${order.orderNumber} siparişini düzenle`} disabled={!canEdit} onClick={() => openEditForm(order)}><Pencil size={17} /></button>
-                      <button type="button" className="icon-button danger" title="Siparişi iptal et" aria-label={`${order.orderNumber} siparişini iptal et`} disabled={!canCancel} onClick={() => void handleCancel(order)}><Ban size={17} /></button>
+                      {order.status === 'Draft' && <button type="button" className="icon-button success" title="Toplamaya hazırla" aria-label={`${order.orderNumber} siparişini toplamaya hazırla`} disabled={processingOrderId !== null} onClick={() => void handleStatusChange(order, markOrderReadyToPick, 'Sipariş toplamaya hazırlanamadı.')}><Check size={17} /></button>}
+                      {order.status === 'ReadyToPick' && <button type="button" className="icon-button success" title="Toplamayı başlat" aria-label={`${order.orderNumber} siparişinde toplamayı başlat`} disabled={processingOrderId !== null} onClick={() => void handleStatusChange(order, startOrderPicking, 'Toplama başlatılamadı.')}><Play size={17} /></button>}
+                      {order.status === 'Picking' && <button type="button" className="icon-button success" title="Toplamayı tamamla" aria-label={`${order.orderNumber} siparişinde toplamayı tamamla`} disabled={processingOrderId !== null} onClick={() => void handleStatusChange(order, completeOrderPicking, 'Toplama tamamlanamadı.')}><PackageCheck size={17} /></button>}
+                      <button type="button" className="icon-button" title="Siparişi düzenle" aria-label={`${order.orderNumber} siparişini düzenle`} disabled={!canEdit || isProcessing} onClick={() => openEditForm(order)}><Pencil size={17} /></button>
+                      <button type="button" className="icon-button danger" title="Siparişi iptal et" aria-label={`${order.orderNumber} siparişini iptal et`} disabled={!canCancel || isProcessing} onClick={() => void handleCancel(order)}><Ban size={17} /></button>
                     </div></td>
                   </tr>
                 )

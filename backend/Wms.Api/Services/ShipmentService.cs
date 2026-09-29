@@ -42,11 +42,10 @@ public class ShipmentService(
             throw new KeyNotFoundException("Sipariş bulunamadı.");
         }
 
-        if (!order.IsActive ||
-            order.Status is OrderStatus.Cancelled or OrderStatus.Completed or OrderStatus.Shipping)
+        if (!order.IsActive || order.Status != OrderStatus.Shipping)
         {
             throw new InvalidOperationException(
-                "Bu sipariş sevkiyata uygun durumda değil.");
+                "Yalnızca toplaması tamamlanmış siparişler sevk edilebilir.");
         }
 
         var location = await dbContext.Locations

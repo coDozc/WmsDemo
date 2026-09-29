@@ -62,6 +62,48 @@ public class OrdersController(IOrderService orderService) : ControllerBase
         }
     }
 
+    [HttpPost("{id:int}/ready-to-pick")]
+    public async Task<IActionResult> MarkReadyToPick(int id)
+    {
+        try
+        {
+            var updated = await orderService.MarkReadyToPickAsync(id);
+            return updated ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
+    }
+
+    [HttpPost("{id:int}/start-picking")]
+    public async Task<IActionResult> StartPicking(int id)
+    {
+        try
+        {
+            var updated = await orderService.StartPickingAsync(id);
+            return updated ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
+    }
+
+    [HttpPost("{id:int}/complete-picking")]
+    public async Task<IActionResult> CompletePicking(int id)
+    {
+        try
+        {
+            var updated = await orderService.CompletePickingAsync(id);
+            return updated ? NoContent() : NotFound();
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Conflict(new { message = exception.Message });
+        }
+    }
+
     [HttpPost("{id:int}/cancel")]
     public async Task<IActionResult> Cancel(int id)
     {

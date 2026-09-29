@@ -93,7 +93,7 @@ function ShipmentsPage() {
   }, [shipments, query])
 
   const eligibleOrders = orders.filter((order) =>
-    order.isActive && !['Cancelled', 'Completed', 'Shipping'].includes(order.status),
+    order.isActive && order.status === 'Shipping',
   )
   const selectedOrder = eligibleOrders.find((order) => String(order.id) === form.orderId)
   const shippingLocations = locations.filter((location) =>

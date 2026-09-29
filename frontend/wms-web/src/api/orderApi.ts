@@ -54,3 +54,23 @@ export async function cancelOrder(id: number): Promise<void> {
     throw new Error(await getErrorMessage(response, 'Sipariş iptal edilemedi.'))
   }
 }
+
+async function changeOrderStatus(id: number, action: string, fallback: string): Promise<void> {
+  const response = await fetch(`${baseUrl}/${id}/${action}`, { method: 'POST' })
+
+  if (!response.ok) {
+    throw new Error(await getErrorMessage(response, fallback))
+  }
+}
+
+export function markOrderReadyToPick(id: number): Promise<void> {
+  return changeOrderStatus(id, 'ready-to-pick', 'Sipariş toplamaya hazırlanamadı.')
+}
+
+export function startOrderPicking(id: number): Promise<void> {
+  return changeOrderStatus(id, 'start-picking', 'Sipariş toplama işlemi başlatılamadı.')
+}
+
+export function completeOrderPicking(id: number): Promise<void> {
+  return changeOrderStatus(id, 'complete-picking', 'Sipariş toplama işlemi tamamlanamadı.')
+}
